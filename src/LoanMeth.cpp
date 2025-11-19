@@ -49,13 +49,13 @@ int insertLoan(LoanList* list, Loan loan, int position) {
     return 1;
     
 }
-int removeLoan(LoanList* list, string loan_id) {
+int removeLoan(LoanList* list, int loanID) {
     if (!list ||isEmpty(*list)) {
         cout <<"Invalid operation: List is empty or null."<< endl;
         return 0;
     }
     LoanNode* current = list->head;
-    while (current != nullptr && current->data.loan_id != loan_id) {
+    while (current != nullptr && current->data.loanID != loanID) {
         current = current->next;
     }
     if (current != nullptr) {
@@ -75,10 +75,10 @@ int removeLoan(LoanList* list, string loan_id) {
     }
     return 0;
 }
-Loan* findLoan(const LoanList& list, string loan_id) {
+Loan* findLoan(const LoanList& list, int loanID) {
     LoanNode* current = list.head;
     while (current != nullptr) {
-        if (current->data.loan_id == loan_id) {
+        if (current->data.loanID == loanID) {
             return &current->data;
         }
         current = current->next;
@@ -88,7 +88,7 @@ Loan* findLoan(const LoanList& list, string loan_id) {
 void displayAllLoans(const LoanList& list) {
     LoanNode* current = list.head;
     while (current != nullptr) {
-        cout << "Loan ID: " << current->data.loan_id << ", Amount Paid: " << current->data.principal_amount << ", Status: " << current->data.status << endl;
+        cout << "Loan ID: " << current->data.loanID << ", Amount Paid: " << current->data.principalAmount << ", Status: " << current->data.status << endl;
         current = current->next;
     }
 }

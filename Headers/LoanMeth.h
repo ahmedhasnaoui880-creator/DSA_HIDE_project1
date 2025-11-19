@@ -7,8 +7,8 @@ LoanList initializeLoanList(LoanList* list);
 LoanNode* createLoanNode(Loan loan);
 bool isEmpty(const LoanList& list);
 int insertLoan(LoanList* list, Loan loan, int position);
-int removeLoan(LoanList* list, string loan_id);
-Loan* findLoan(const LoanList& list,string loan_id);
+int removeLoan(LoanList* list, int loanID);
+Loan* findLoan(const LoanList& list,int loanID);
 void displayAllLoans(const LoanList& list);
 void clearLoanList(LoanList* list);
 

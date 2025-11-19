@@ -1,3 +1,5 @@
+#include "LoanList.h"
+#include "trStack.h"
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
 #include <iostream>
@@ -13,6 +15,9 @@ struct Customer
     string opening_date;
     string status;
     double balance;
+    LoanList loans;
+    TransactionStack transactions;
+
 };
 
 #endif

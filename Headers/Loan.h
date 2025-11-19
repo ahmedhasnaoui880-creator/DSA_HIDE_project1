@@ -5,13 +5,14 @@
 using namespace std;
 struct Loan
 {
-    string loan_id;
-    string loan_type;
-    double principal_amount;
-    double amount_paid;
-    double remaining_balance;
-    string start_date;
-    string end_date;
+    int loanID;
+    string loanType;
+    double principalAmount;
+    double interestRate;
+    double amountPaid;
+    double remainingBalance;
+    string startDate;
+    string endDate;
     string status;
 };
 #endif
