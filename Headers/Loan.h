@@ -14,5 +14,6 @@ struct Loan
     string startDate;
     string endDate;
     string status;
+    string account_number; 
 };
 #endif

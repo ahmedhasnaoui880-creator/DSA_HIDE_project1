@@ -15,9 +15,8 @@ struct Customer
     string opening_date;
     string status;
     double balance;
-    LoanList loans;
-    TransactionStack transactions;
+    LoanList* loans;
+    TransactionStack* transactions;
 
 };
-
 #endif
