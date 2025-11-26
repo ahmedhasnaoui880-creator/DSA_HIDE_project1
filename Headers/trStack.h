@@ -11,6 +11,5 @@ struct TransactionStackNode
 struct TransactionStack
 {
     TransactionStackNode* top;
-    int topindex;
 };
 #endif

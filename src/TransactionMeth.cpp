@@ -1,8 +1,14 @@
 #include "trStack.h"
 #include <iostream>
 using namespace std;
-TransactionStack initTransactionStack(TransactionStack* stack) {
-    return TransactionStack{nullptr, -1};
+TransactionStack* createTransactionStack() {
+    TransactionStack* stack = new (nothrow) TransactionStack();
+    if (!stack){
+        cout<<"Memory allocation failed for TransactionStack."<<endl;
+        return nullptr;
+    }
+    stack->top = nullptr;
+    return stack;
     
 }
 bool isTransactionStackEmpty(const TransactionStack& stack) {
@@ -13,7 +19,6 @@ void pushTransaction(TransactionStack* stack, const Transaction& transaction) {
     newNode->data = transaction;
     newNode->next = stack->top;
     stack->top = newNode;
-    stack->topindex++;
 }
 Transaction popTransaction(TransactionStack* stack, Transaction& transaction) {
     if (isTransactionStackEmpty(*stack)) {
@@ -23,7 +28,6 @@ Transaction popTransaction(TransactionStack* stack, Transaction& transaction) {
     transaction = stack->top->data;
     stack->top = stack->top->next;
     delete temp;
-    stack->topindex--;
     return transaction;
 }
 void clearTransactionStack(TransactionStack* stack) {
@@ -34,10 +38,15 @@ void clearTransactionStack(TransactionStack* stack) {
         delete temp;
     }
     stack->top = nullptr;
-    stack->topindex = -1;
 }
 int getTransactionStackSize(const TransactionStack& stack) {
-    return stack.topindex + 1;
+    int size=0;
+    TransactionStackNode* node = stack.top;
+    while (node != nullptr) {
+        size++;
+        node = node->next;
+    }
+    return size;
 }
 bool compareTransactions(const TransactionStack& t1, const TransactionStack& t2) {
     if (getTransactionStackSize(t1) != getTransactionStackSize(t2)) {

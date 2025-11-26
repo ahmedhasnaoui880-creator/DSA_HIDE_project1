@@ -3,7 +3,7 @@
 #include "Loan.h"
 #include "LoanList.h"
 using namespace std;
-LoanList initializeLoanList(LoanList* list);
+LoanList* createLoanList();
 LoanNode* createLoanNode(Loan loan);
 bool isEmpty(const LoanList& list);
 int insertLoan(LoanList* list, Loan loan, int position);

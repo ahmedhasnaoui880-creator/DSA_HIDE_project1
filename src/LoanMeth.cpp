@@ -1,8 +1,16 @@
 #include "LoanMeth.h"
 #include <iostream>
 using namespace std;
-LoanList initializeLoanList(LoanList* list) {
-    return LoanList{nullptr, nullptr, 0};
+LoanList* createLoanList() {
+    LoanList* list = new (nothrow) LoanList();
+    if (!list){
+        cout<<"Memory allocation failed for LoanList."<<endl;
+        return nullptr;
+    }
+    list->head = nullptr;
+    list->tail = nullptr;
+    list->size = 0;
+    return list;
 }
 LoanNode* createLoanNode(Loan loan) {
     LoanNode* newNode = new (nothrow) LoanNode{{}, nullptr, nullptr};
