@@ -1,4 +1,4 @@
- #include "StatisticsMeth.h"
+#include "StatisticsMeth.h"
 using namespace std;
 
 void totalnumofloans(const Customer arr[],int size){
@@ -353,7 +353,4 @@ void NumberofEmployeesbyBB(const Employee arr[],int size,int branches){
     for(int i=0;i<branches;i++){
         cout<<"Number of employees in branch: "<<i+1<<" --> "<<employeesbyBBarr[i]<<endl;
     }
-}
-int Main(){
-    return 0;
 }

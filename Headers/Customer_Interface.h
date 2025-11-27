@@ -1,0 +1,11 @@
+#ifndef CUSTOMER_INTERFACE_H
+#define CUSTOMER_INTERFACE_H
+#include <iostream>
+#include "Customer.h"
+int ViewLoans(Customer client);
+int SubmitLoanApplication(Loan loan,LoanList* loansapplications);
+int Withdraw(Customer& client,double withdrawamount);
+int Deposit(Customer& client, double depositamout);
+int ViewTransactionHistory();
+int UndoLastTransaction();
+#endif // CUSTOMER_INTERFACE_H

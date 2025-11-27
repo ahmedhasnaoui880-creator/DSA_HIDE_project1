@@ -102,6 +102,3 @@ int Manageloans(){
 int ManageTransactions(){
     return 0;
 }
-int Main(){
-    return 0;
-}
