@@ -1,10 +1,6 @@
-#include "Customer.h"
-#include "LoanMeth.h"
-#include <iostream>
-#include "Employee.h"
+#include "StatisticsMeth.h"
 using namespace std;
-#include <array>
-#include <string>
+
 void totalnumofloans(const Customer arr[],int size){
     int sum=0;
     for (int i=0; i<size;i++){
@@ -15,7 +11,6 @@ void totalnumofloans(const Customer arr[],int size){
     cout<< sum;
 }
 void numofloansbytype(const Customer arr[],int size){
-    //(car, home, student, business)
     if(size==0){
     cout<<"There are no costumers";
     }
@@ -27,19 +22,22 @@ void numofloansbytype(const Customer arr[],int size){
         n=arr[i].loans->head;
         while(n){
             if (n->data.loanType=="car") carN++;
-            else if(n->data.loanType=="home") homeN;
-            else if(n->data.loanType=="student") studentN;
-            else if(n->data.loanType=="business") businessN;
+            else if(n->data.loanType=="home") homeN++;
+            else if(n->data.loanType=="student") studentN++;
+            else if(n->data.loanType=="business") businessN++;
             n=n->next; 
         }
 
     }
 }
+    cout<<carN<<endl;
+    cout<<homeN<<endl;
+    cout<<studentN<<endl;
+    cout<<businessN<<endl;
 }
 
 }
 void numofloansbystatus(const Customer arr[],int size){
-    //(active, completed, overdue)
     if(size==0){
         cout<<"There are no costumers";
     }
@@ -51,13 +49,16 @@ void numofloansbystatus(const Customer arr[],int size){
         n=arr[i].loans->head;
         while(n){
             if (n->data.status=="active") activeN++;
-            else if(n->data.status=="completed") completedN;
-            else if(n->data.status=="overdue") overdueN;
+            else if(n->data.status=="completed") completedN++;
+            else if(n->data.status=="overdue") overdueN++;
             n=n->next; 
         }
     }
 
     }
+    cout<< activeN<<endl;
+    cout<< completedN<<endl;
+    cout<< overdueN<<endl;
 }
 }
 string normalize(string date){
@@ -65,7 +66,7 @@ string normalize(string date){
     return date.substr(6,4)+date.substr(3,2)+date.substr(0,2);
 }
 bool isInDate(string startDateR,string endDateR,string startDate,string endDate){
-    return startDate>startDateR && endDate<endDateR;
+    return startDate>=startDateR && endDate<=endDateR;
 }
 void activeloanindate(const Customer arr[],int size,string startDateR,string endDateR){
     if(size==0){
@@ -139,11 +140,12 @@ void lowestbalance(const Customer arr[],int size){
     }
 }
 
-void NumberofEmployees(int size){
+void NumberofEmployees(const Employee employeeArr[],int size){
     cout<< size;
 }
 void NumberofEmployeesbyBB(const Employee arr[],int size,int branches){
     int branchesArr[15];
+    int employeesbyBBarr[15]={0};
     for(int i=0;i<branches;i++){
         branchesArr[i]=i+1;
     }
@@ -151,22 +153,18 @@ void NumberofEmployeesbyBB(const Employee arr[],int size,int branches){
         cout<<"There are no employees";
     }
     else{
-        int number=0;
-        LoanNode* n;
-        for (int i=0;i<size;i++){
-            if(!isEmpty(*arr[i].loans)){
-            n=arr[i].loans->head;
-            while(n){
-                if(n->data.status=="active" && isInDate(normalize(startDateR),normalize(endDateR),normalize(n->data.startDate),normalize(n->data.endDate))){
-                    number++;
+        for(int i=0;i<size;i++){
+            for(int j=0;j<branches;j++){
+                if(arr[i].BankBranch==branchesArr[j]){
+                    employeesbyBBarr[j]++;
                 }
-                n=n->next; 
             }
         }
 
     }
-}
-
+    for(int i=0;i<branches;i++){
+        cout<<"nmbr of employees in branche: "<<i+1<<"-->"<<employeesbyBBarr[i]<<endl;
+    }
 }
 int Main(){
     return 0;
