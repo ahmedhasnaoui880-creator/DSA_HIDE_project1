@@ -11,8 +11,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "CompletedLoansList.h"
 using namespace std;
 void displayStatistics(Employee employees[], int empcount);
+void bakcupcompletedloans(CompletedLoansList* clist);
+CompletedLoansList* loadCompletedLoans(string clfile);
 void mainInterface();
 Customer Split_line_to_customer(string line){
     Customer cust;
@@ -226,10 +229,10 @@ void loginCustomerInterface(Customer customers[],int customerCount){
             Deposit(client,depositAmount);
             break;
             case 5:
-            ViewTransactionHistory();
+            ViewTransactionHistory(*client.transactions);
             break;
             case 6:
-            UndoLastTransaction();
+            UndoLastTransaction(client.transactions);
             break;
             case 7:
             cout <<"Exiting customer interface." << endl;
@@ -242,6 +245,14 @@ void loginCustomerInterface(Customer customers[],int customerCount){
         }
     }while(choice!=7);
     }
+}
+int findCustomerByAccountNumber(Customer customers[], int customerCount, string account_number){
+    for (int i = 0; i < customerCount; i++){
+        if (customers[i].account_number == account_number){
+            return i;
+        }
+    }
+    return -1;
 }
 void loginEmployeeInterface(Employee employees[],int empcount,Customer customers[],int customerCount){
     int employeeID;
@@ -365,28 +376,42 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout<<"10. Display Statistics"<<endl;
                 cout<<"11. Exit"<<endl;
                 cin >> choice;
+                int loanID;
+                string CustomerID;
+                string newStatus;
+                Customer newCust;
                 switch (choice)
                 {
                     case 1:
-                    addCustomer();
+                    addCustomer(newCust, customers, customerCount);
                     break;
                     case 2:
-                    displayCustomers();
+                    displayCustomers(customers,customerCount);
                     break;
                     case 3:
-                    changeStatusofaccount();
+                    changeStatusofaccount(customers,customerCount);
                     break;
                     case 4:
-                    DeleteClosedAccounts();
+                    DeleteClosedAccounts(customers,customerCount);
                     break;
                     case 5:
-                    displayloansbycustomer();
+                    displayloansbycustomer(customers,customerCount);
                     break;
                     case 6:
-                    changeLoanStatus();
+                    cout<<"Enter Loan ID: ";
+                    cin>>loanID;
+                    cout<<"Enter Customer Account Number: ";
+                    cin>>CustomerID;
+                    int custIndex=findCustomerByAccountNumber(customers,customerCount,CustomerID);
+                    LoanList* loans=customers[custIndex].loans;
+                    cout<<"Enter New Status: ";
+                    cin>>newStatus;
+                    changeLoanStatus(loans, loanID, newStatus);
                     break;
                     case 7:
-                    deleteloan();
+                    CompletedLoansList* completed_loans = loadCompletedLoans("CompletedLoans.txt");
+                    deleteloan(completed_loans);
+                    bakcupcompletedloans(completed_loans);
                     break;
                     case 8:
                     Manageloans();

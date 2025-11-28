@@ -6,6 +6,7 @@
 #include "Customer.h"
 #include "Loan.h"
 #include "LoanList.h"
+#include "CompletedLoansList.h"
 void SortByAlpha(Employee employees[],int empcout);
 void SortByBB(Employee employees[],int empcount);
 int addEmployee(Employee emp,Employee employees[],int& empcount);
@@ -14,14 +15,14 @@ int updateEmployee(Employee employees[],int empcount,int empID,Employee updatedE
 int displayEmployeeAlpha(Employee employees[],int empcount);
 int displayEmployeeByBB(Employee employees[],int empcount);
 int earliestHireDate(Employee employees[],int empcount);
-int latestHireDate();
-int addCustomer();
-int displayCustomers();
-int changeStatusofaccount();
-int DeleteClosedAccounts();
-int displayloansbycustomer();
-int changeLoanStatus();
-int deleteloan();
+int latestHireDate(Employee employees[], int empcount);
+int addCustomer(Customer c, Customer customers[], int custmcount);
+int displayCustomers(Customer customers[], int custmcount);
+int changeStatusofaccount(Customer customers[], int custmcount);
+int DeleteClosedAccounts(Customer customers[], int& custmcount);
+int displayloansbycustomer(Customer customers[], int custmcount);
+int changeLoanStatus(LoanList* loans, int loanID, string newStatus);
+int deleteloan(CompletedLoansList* completed_loans);
 int Manageloans();
 int ManageTransactions();
 #endif // EMPLOYEE_SPACE_H
