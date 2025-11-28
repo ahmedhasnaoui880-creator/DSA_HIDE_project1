@@ -13,7 +13,7 @@
 #include <string>
 #include "CompletedLoansList.h"
 using namespace std;
-void displayStatistics(Employee employees[], int empcount);
+void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
 CompletedLoansList* loadCompletedLoans(string clfile);
 void mainInterface();
@@ -45,7 +45,7 @@ Customer Split_line_to_customer(string line){
     return cust;
     }
 LoanList* getCustomerLoans(string account_number){
-    ifstream file("Loans.txt");
+    ifstream file("../Data/Loans.txt");
     if (!file) {
         return nullptr;
     }
@@ -98,7 +98,7 @@ LoanList* getCustomerLoans(string account_number){
     return loans;
 }
 TransactionStack* getCustomerTransactions(string account_number){
-    ifstream file ("Transactions.txt");
+    ifstream file ("../Data/Transactions.txt");
     if (!file) {
         return nullptr;
     }
@@ -125,11 +125,12 @@ TransactionStack* getCustomerTransactions(string account_number){
     file.close();
     return trStack;
 }
+return nullptr;
 }
 void BackupData(const Customer customers[],int customerCount,const Employee employees[],int empcount){
-    ofstream custfile("Customers.txt");
-    ofstream loanfile("Loans.txt");
-    ofstream transfile("Transactions.txt");
+    ofstream custfile("../Data/Customers.txt");
+    ofstream loanfile("../Data/Loans.txt");
+    ofstream transfile("../Data/Transactions.txt");
     if (!custfile || !loanfile || !transfile) {
         cout << "Error opening file for backup." << endl;
         return;
@@ -147,7 +148,7 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
             currentTransaction = currentTransaction->next;
         }
 
-        custfile << customers[i].account_number << "," << customers[i].account_type << "," << customers[i].IBAN << "," << customers[i].branch_code << "," << customers[i].account_holder_name << "," << customers[i].opening_date << "," << customers[i].status << "," << customers[i].balance << endl;
+        custfile << customers[i].account_number << "," << customers[i].account_type << "," << customers[i].IBAN << "," << customers[i].branch_code << "," << customers[i].account_holder_name << "," << customers[i].opening_date << "," << customers[i].status << "," << customers[i].balance<<"," << endl;
     }
     }
     custfile.close();
@@ -156,9 +157,9 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
     if (!employees) {
         return;
     }
-    ofstream empfile("Employees.txt");
+    ofstream empfile("../Data/Employees.txt");
     for (int i=0;i<empcount;i++){
-        empfile << employees[i].employeeID << "," << employees[i].name << "," << employees[i].lastName << "," << employees[i].adress << "," << employees[i].salary << "," << employees[i].hireDate << "," << employees[i].BankBranch << endl;
+        empfile << employees[i].employeeID << "," << employees[i].name << "," << employees[i].lastName << "," << employees[i].adress << "," << employees[i].salary << "," << employees[i].hireDate << "," << employees[i].BankBranch<< "," << endl;
     }
     empfile.close();
 }
@@ -398,6 +399,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     displayloansbycustomer(customers,customerCount);
                     break;
                     case 6:
+                    {
                     cout<<"Enter Loan ID: ";
                     cin>>loanID;
                     cout<<"Enter Customer Account Number: ";
@@ -408,25 +410,35 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     cin>>newStatus;
                     changeLoanStatus(loans, loanID, newStatus);
                     break;
+                    }
                     case 7:
-                    CompletedLoansList* completed_loans = loadCompletedLoans("CompletedLoans.txt");
+                    {
+                    CompletedLoansList* completed_loans = loadCompletedLoans("../Data/CompletedLoans.txt");
                     deleteloan(completed_loans);
                     bakcupcompletedloans(completed_loans);
                     break;
+                    }
                     case 8:
+                    {
                     Manageloans();
                     break;
+                    }
                     case 9:
+                    {
                     ManageTransactions();
                     break;
-                    case 10:
-            }
-        }while (choice!=11);
-    }
+                    }
+                    default:{
+                        cout <<"Invalide Choice";
+                        break;
+                    }
+        }
+    }while (choice!=11);
+}
 }
 }
 void mainInterface(){
-    ifstream file("Customers.txt");
+    ifstream file("../Data/Customers.txt");
     if (!file) {
         cout << "Error opening file." << endl;
         return ;
@@ -442,7 +454,7 @@ void mainInterface(){
         customerCount++;
     }
     file.close();
-    ifstream empfile("Employees.txt");
+    ifstream empfile("../Data/Employees.txt");
     if (!empfile) {
         cout << "Error opening employee file." << endl;
         return ;
@@ -557,4 +569,23 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
         }
     }while (choice!=9);
     return;
+}
+
+// Minimal implementations for completed loans helpers (prevent linker errors)
+CompletedLoansList* loadCompletedLoans(string /*clfile*/){
+    CompletedLoansList* list = new CompletedLoansList();
+    list->head = nullptr;
+    list->tail = nullptr;
+    list->size = 0;
+    return list;
+}
+
+void bakcupcompletedloans(CompletedLoansList* /*clist*/){
+    // Placeholder: no-op backup implementation. Real backup logic can be added later.
+    return;
+}
+int main()
+{
+    mainInterface();
+    return 0;
 }
