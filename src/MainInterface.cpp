@@ -219,15 +219,10 @@ void loginCustomerInterface(Customer customers[],int customerCount){
             break;
         case 3:
         cout <<"Enter amount to withdraw: ";
-            double withdrawAmount;
-            cin >> withdrawAmount;
-            Withdraw(client,withdrawAmount);
+            Withdraw(client);
             break;
             case 4:
-            cout <<"Enter amount to deposit: ";
-            double depositAmount;
-            cin >> depositAmount;
-            Deposit(client,depositAmount);
+            Deposit(client);
             break;
             case 5:
             ViewTransactionHistory(*client.transactions);
@@ -381,6 +376,8 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 string CustomerID;
                 string newStatus;
                 Customer newCust;
+                Customer ClosedAccounts[100];
+                int closedaccnum;
                 switch (choice)
                 {
                     case 1:
@@ -389,11 +386,19 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     case 2:
                     displayCustomers(customers,customerCount);
                     break;
-                    case 3:
-                    changeStatusofaccount(customers,customerCount);
+                    case 3:{
+                        cout<<"Enter the customer's Id";
+                        string custId;
+                        cin >> custId;
+                        cout <<"Enter The new Status";
+                        string newstat;
+                        cin >> newstat;
+                        changeStatusofaccount(customers,customerCount,custId,newstat);
+                    }
                     break;
-                    case 4:
-                    DeleteClosedAccounts(customers,customerCount);
+                    case 4:{
+                        DeleteClosedAccounts(customers,customerCount,ClosedAccounts,closedaccnum);
+                    }
                     break;
                     case 5:
                     displayloansbycustomer(customers,customerCount);

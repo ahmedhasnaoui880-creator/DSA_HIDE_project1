@@ -4,8 +4,8 @@
 #include "Customer.h"
 int ViewLoans(Customer client);
 int SubmitLoanApplication(Loan loan,LoanList* loansapplications);
-int Withdraw(Customer& client,double withdrawamount);
-int Deposit(Customer& client, double depositamout);
+int Withdraw(Customer& client);
+int Deposit(Customer& client);
 int ViewTransactionHistory(const TransactionStack &t);
 int UndoLastTransaction(TransactionStack *t);
 #endif // CUSTOMER_INTERFACE_H

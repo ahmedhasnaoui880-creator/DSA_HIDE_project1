@@ -1,5 +1,6 @@
 #include "LoanMeth.h"
 #include "Customer.h"
+#include "TransactionMeth.h"
 #include <iostream>
 using namespace std;
 int ViewLoans(Customer client)
@@ -44,11 +45,41 @@ int SubmitLoanApplication(Loan loan, LoanList *loansapplications)
     }
     return 0;
 }
-int Withdraw(Customer &client, double withdrawamount)
+int Withdraw(Customer &client)
 {
-    if (withdrawamount > client.balance)
+    int choice=0;
+    int withdrawamount;
+    cout <<"Choose a withdraw amount:"<<endl;
+    cout <<"1. 10TND"<<endl;
+    cout <<"2. 20TND"<<endl;
+    cout <<"3. 50TND"<<endl;
+    cout <<"4. Another amount"<<endl;
+    cin >> choice;
+    do{
+
+        switch (choice)
+        {
+            case 1:
+            withdrawamount=10;
+            break;
+            case 2:
+            withdrawamount=20;
+            break;
+            case 3:
+            withdrawamount=50;
+            break;
+            case 4:
+        cout << "Choose an amount:"<<endl;
+        cin >> choice;
+        
+        default:
+        cout << "Invalide choice!";
+        break;
+    }
+}while (choice!=1 && choice!=2 && choice!=3 && choice!=4 );
+    if (withdrawamount > client.balance || withdrawamount<10)
     {
-        cout << "Sorry u don't have enough to withdraw";
+        cout << "Sorry u Cannot withdraw that amount please try another!"<<endl;
         return 1;
     }
     else
@@ -58,9 +89,17 @@ int Withdraw(Customer &client, double withdrawamount)
     }
     return 0;
 }
-int Deposit(Customer &client, double depositamout)
+int Deposit(Customer &client)
 {
-    client.balance = client.balance + depositamout;
+    float depositamount;
+    do{
+        cout<<"Enter Your Deposit amount";
+        cin >> depositamount;
+        if (depositamount<=0){
+            cout <<"Invalide Amout Please Retry!";
+        }
+    }while (depositamount<=0);
+    client.balance = client.balance + depositamount;
     cout << "Your deposit is seccessful";
     return 0;
 }
@@ -87,13 +126,6 @@ int ViewTransactionHistory(const TransactionStack &t)
 }
 int UndoLastTransaction(TransactionStack *t)
 {
-    if (t->top == nullptr)
-    {
-        cout << "No transactions to undo." << endl;
-        return 1;
-    }
-    TransactionStackNode *temp = t->top;
-    t->top = t->top->next;
-    delete temp;
+    Transaction undoTransaction=popTransaction(t,undoTransaction);
     return 0;
 }

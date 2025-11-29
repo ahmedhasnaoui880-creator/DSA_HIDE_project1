@@ -22,12 +22,14 @@ void pushTransaction(TransactionStack* stack, const Transaction& transaction) {
 }
 Transaction popTransaction(TransactionStack* stack, Transaction& transaction) {
     if (isTransactionStackEmpty(*stack)) {
+        cout <<"No Transactions to undo!";
         return Transaction{};
     }
     TransactionStackNode* temp = stack->top;
     transaction = stack->top->data;
     stack->top = stack->top->next;
     delete temp;
+    cout <<"Undo is Completed!";
     return transaction;
 }
 void clearTransactionStack(TransactionStack* stack) {

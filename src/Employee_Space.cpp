@@ -1,8 +1,7 @@
 #include "Employee.h"
 #include "Customer.h"
 #include "LoanList.h"
-#include "CompletedLoansList.h"
-#include <algorithm>
+#include "CompletedLoansListMeth.h"
 #include <iostream>
 using namespace std;
 
@@ -93,42 +92,66 @@ int displayEmployeeByBB(Employee employees[], int empcount)
 // Simple implementations for sorting helpers declared in the header
 void SortByAlpha(Employee employees[], int empcount)
 {
-    if (empcount <= 1) return;
-    sort(employees, employees + empcount, [](const Employee &a, const Employee &b) {
-        if (a.name == b.name) return a.lastName < b.lastName;
-        return a.name < b.name;
-    });
-}
+    bool test=true;
+    do{
+        for (int i=0;i<empcount-1;i++){
+            if (employees[i].name>employees[i].name){
+                Employee aux=employees[i];
+                employees[i]=employees[i+1];
+                employees[i+1]=aux;
+                test=false;
+            }
+            else if (employees[i].name==employees[i].name){
+                if (employees[i].lastName>employees[i].lastName){
+                    Employee aux=employees[i];
+                employees[i]=employees[i+1];
+                employees[i+1]=aux;
+                test=false;
+                }
+            }
+        }
+    }while (test==false);
+    
+    }
 
 void SortByBB(Employee employees[], int empcount)
 {
-    if (empcount <= 1) return;
-    sort(employees, employees + empcount, [](const Employee &a, const Employee &b) {
-        return a.BankBranch < b.BankBranch;
-    });
-}
+    bool test=true;
+    do{
+        for (int i=0;i<empcount-1;i++){
+            if (employees[i].BankBranch>employees[i].BankBranch){
+                Employee aux=employees[i];
+                employees[i]=employees[i+1];
+                employees[i+1]=aux;
+                test=false;
+            }
+            }
+        }while (test==false);
+    }
 
 // Wrapper functions to match signatures declared in the header file
-int changeStatusofaccount(Customer customers[], int custmcount)
+int findcustomerbyID(Customer custoemrs[],int custcount,string custID){
+    for (int i=0;i<custcount;i++){
+        if (custoemrs[i].account_number==custID){
+            return i;
+        }
+    }
+    return -1;
+}
+int changeStatusofaccount(Customer customers[], int custmcount,string custID,string newStat)
 {
-    // Minimal implementation: no-op over array, return success
-    // Existing helper changeStatusofaccount(string, Customer&) can be used
-    // when interactive behavior is desired; for now just return 0.
+    int index=findcustomerbyID(customers,custmcount,custID);
+    if (index==(-1)){
+        cout << "Customer doesn't exist!";
+        return 1;
+    }
+    customers[index].status=newStat;
+    if (newStat=="closed"){
+        customers[index].balance=0;
+    }
     return 0;
 }
 
-int DeleteClosedAccounts(Customer customers[], int &custmcount)
-{
-    // Perform a simple compaction: remove items with status == "closed".
-    int write = 0;
-    for (int i = 0; i < custmcount; ++i) {
-        if (customers[i].status != "closed") {
-            customers[write++] = customers[i];
-        }
-    }
-    custmcount = write;
-    return 0;
-}
 
 int displayloansbycustomer(Customer customers[], int custmcount)
 {
@@ -218,20 +241,7 @@ int displayCustomers(Customer customers[], int empcount)
     }
     return 0;
 }
-int changeStatusofaccount(string s, Customer &c)
-{
-    c.status = s;
-    if (s == "closed")
-    {
-        c.balance = 0;
-    }
-    else
-    {
-        cout << "Account status updated to " << s << endl;
-    }
-    return 0;
-}
-int deleteClosedAccounts(Customer customers[], int &empcount, Customer archived[], int &archcount)
+int DeleteClosedAccounts(Customer customers[], int &empcount, Customer archived[], int &archcount)
 {
     int i = 0;
     while (i < empcount)
