@@ -17,9 +17,5 @@ int listSize(const CompletedLoansList& L);
 int insertIntoConpletedLoans(CompletedLoansList* L, Loan loan, int pos);
 int removeAt(CompletedLoansList* L, int pos);
 int getElement(const CompletedLoansList& L, int pos);
-void displayList(const CompletedLoansList& L);
-
-CompletedLoansList CopyList(const CompletedLoansList& L);
-bool CompareLists(const CompletedLoansList& L1, const CompletedLoansList& L2);
 
 #endif

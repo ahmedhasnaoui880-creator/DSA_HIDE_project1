@@ -1,7 +1,9 @@
 #include "Employee.h"
 #include "Customer.h"
 #include "LoanMeth.h"
-#include "CompletedLoansListMeth.h"
+#include "CompletedLoansMeth.h"
+#include "TransactionMeth.h"
+#include "EndTransactionMeth.h"
 #include <iostream>
 using namespace std;
 
@@ -299,16 +301,17 @@ int changeLoanStatus(Loan &l, string s)
     }
     return 0;
 }
-int deleteloan(LoanNode *completed_loans, LoanNode *head)
+int deleteloan(CompletedLoansList* completed_loans, LoanNode *head)
 {
     LoanNode *prev = nullptr;
     LoanNode *current = head;
+    int pos=0;
     while (current != nullptr)
     {
         if (current->data.status == "completed")
         {
-            LoanNode *archivedNode = new LoanNode{current->data, completed_loans};
-            completed_loans = archivedNode;
+            insertIntoConpletedLoans(completed_loans,current->data,pos);
+            pos++;
             if (prev == nullptr)
             {
                 head = current->next;
@@ -356,18 +359,29 @@ int Manageloans(LoanList* appliedloans,Customer customers[],int custcount)
                 int index=findcustomerbyID(customers,custcount,appliedloans->head->data.account_number);
                 insertLoan(customers[index].loans, appliedloans->head->data, 1);
                 removeLoan(appliedloans,appliedloans->head->data.loanID);
+                cout<<"Loan has been Accepted!"<<endl;
             }
         else if (choice==0){
             removeLoan(appliedloans,appliedloans->head->data.loanID);
+            cout <<"Loan has been declined!"<<endl;
         }
         else{
-            cout <<"Invalide choice please try again";
+            cout <<"Invalide choice please try again!"<<endl;
         }
     }while (choice!=1 && choice!=0);
     }
     return 0;
 }
-int ManageTransactions()
+EndTransactionList* ManageTransactions(Customer customers[],int custcount)
 {
-    return 0;
+    cout<<"Reseting Transactions"<<endl;
+    EndTransactionList* EndTransactions=createEndTransactionList();
+    int pos=0;
+    for (int i=0;i<custcount;i++){
+        while(!isTransactionStackEmpty(*customers[i].transactions)){
+            Transaction poped=popTransaction(customers[i].transactions);
+            addEndTransaction(EndTransactions,poped);
+        }
+    }
+    return EndTransactions;
 }

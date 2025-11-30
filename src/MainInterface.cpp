@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include "CompletedLoansMeth.h"
+#include "EndTransactionMeth.h"
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
@@ -425,12 +426,12 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     }
                     case 8:
                     {
-                    Manageloans();
+                    ManageTransactions(customers,customerCount);
                     break;
                     }
                     case 9:
                     {
-                    ManageTransactions();
+                    EndTransactionList* EndTransactions=ManageTransactions(customers,customerCount);
                     break;
                     }
                     default:{

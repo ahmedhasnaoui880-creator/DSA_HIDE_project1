@@ -9,7 +9,6 @@ struct CompletedLoansListNode
 struct CompletedLoansList
 {
     CompletedLoansListNode* head;
-    CompletedLoansListNode* tail;
     int size;
 };
 

@@ -126,6 +126,6 @@ int ViewTransactionHistory(const TransactionStack &t)
 }
 int UndoLastTransaction(TransactionStack *t)
 {
-    Transaction undoTransaction=popTransaction(t,undoTransaction);
+    Transaction undoTransaction=popTransaction(t);
     return 0;
 }
