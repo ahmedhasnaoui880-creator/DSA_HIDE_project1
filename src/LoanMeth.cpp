@@ -13,10 +13,14 @@ LoanList* createLoanList() {
     return list;
 }
 LoanNode* createLoanNode(Loan loan) {
-    LoanNode* newNode = new (nothrow) LoanNode{{}, nullptr, nullptr};
+    LoanNode* newNode = new (nothrow) LoanNode;  // Changed from {{}, nullptr, nullptr}
     if (!newNode){
         cout<<"Memory allocation failed for LoanNode."<<endl;
+        return nullptr;
     }
+    newNode->data = loan;  // ADD THIS LINE
+    newNode->next = nullptr;
+    newNode->prev = nullptr;
     return newNode;
 }
 bool isEmpty(const LoanList& list) {

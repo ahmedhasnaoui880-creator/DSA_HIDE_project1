@@ -15,10 +15,13 @@
 #include "EndTransactionMeth.h"
 #include <ctime>
 #include <cstdlib>
+LoanList* globalLoanApplications = nullptr;
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
 CompletedLoansList* loadCompletedLoans(string clfile);
+void displayHeader(string title);
+void pauseScreen();
 void mainInterface();
 Customer Split_line_to_customer(string line){
     Customer cust;
@@ -103,32 +106,35 @@ LoanList* getCustomerLoans(string account_number){
 TransactionStack* getCustomerTransactions(string account_number){
     ifstream file ("../Data/Transactions.txt");
     if (!file) {
-        return nullptr;
+        return createTransactionStack();  // Return empty stack instead of nullptr
     }
     TransactionStack* trStack=createTransactionStack();
     string line;
     while (getline(file,line)){
+        Transaction transaction;
         string linepart=line.substr(0,line.find(','));
         line.erase(0,line.find(',')+1);
-        if (linepart==account_number){
-            Transaction transaction;
+        transaction.transaction_id=linepart;
+        
+        linepart=line.substr(0,line.find(','));
+        line.erase(0,line.find(',')+1);
+        if (linepart == account_number){  // Check if this transaction belongs to customer
             transaction.account_number=linepart;
-            linepart=line.substr(0,line.find(','));
-            line.erase(0,line.find(',')+1);
-            transaction.transaction_id=linepart;
+            
             linepart=line.substr(0,line.find(','));
             line.erase(0,line.find(',')+1);
             transaction.type=linepart;
+            
             linepart=line.substr(0,line.find(','));
             line.erase(0,line.find(',')+1);
             transaction.amount=stod(linepart);
+            
             transaction.date=line;
             pushTransaction(trStack,transaction);
+        }
     }
     file.close();
     return trStack;
-}
-return nullptr;
 }
 void BackupData(const Customer customers[],int customerCount,const Employee employees[],int empcount){
     ofstream custfile("../Data/Customers.txt");
@@ -146,8 +152,13 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
             currentLoan = currentLoan->next;
         }
         TransactionStackNode* currentTransaction = customers[i].transactions->top;
+        // In BackupData function, change transaction saving to:
         while (currentTransaction != nullptr) {
-            transfile << currentTransaction->data.account_number << "," << currentTransaction->data.transaction_id << "," << currentTransaction->data.type << "," << currentTransaction->data.amount << "," << currentTransaction->data.date << endl;
+            transfile << currentTransaction->data.transaction_id << "," 
+                    << currentTransaction->data.account_number << "," 
+                    << currentTransaction->data.type << "," 
+                    << currentTransaction->data.amount << "," 
+                    << currentTransaction->data.date << endl;
             currentTransaction = currentTransaction->next;
         }
 
@@ -171,6 +182,7 @@ void loginCustomerInterface(Customer customers[], int customerCount)
     string account_number;
     cout << "Please enter your account number: ";
     cin >> account_number;
+    cin.ignore(10000, '\n');
     
     int index = 0;
     while (index < customerCount && customers[index].account_number != account_number) {
@@ -196,7 +208,8 @@ void loginCustomerInterface(Customer customers[], int customerCount)
         cout << "6. Undo Last Transaction" << endl;
         cout << "7. Exit" << endl;
         cout << "Choice: ";
-        cin >> choice;  // Moved here - AFTER menu display
+        cin >> choice;
+        cin.ignore(10000, '\n');  // Moved here - AFTER menu display
 
         switch (choice)
         {
@@ -208,22 +221,27 @@ void loginCustomerInterface(Customer customers[], int customerCount)
                 Loan loan;
                 cout << "Enter Loan ID: ";
                 cin >> loan.loanID;
+                cin.ignore(10000, '\n');
                 cout << "Enter Loan Type (car/home/student/business): ";
                 cin >> loan.loanType;
+                cin.ignore(10000, '\n');
                 cout << "Enter Principal Amount: ";
                 cin >> loan.principalAmount;
+                cin.ignore(10000, '\n');
                 cout << "Enter Interest Rate: ";
                 cin >> loan.interestRate;
+                cin.ignore(10000, '\n');
                 cout << "Enter Start Date (DD/MM/YYYY): ";
                 cin >> loan.startDate;
+                cin.ignore(10000, '\n');
                 cout << "Enter End Date (DD/MM/YYYY): ";
                 cin >> loan.endDate;
+                cin.ignore(10000, '\n');
                 loan.account_number = client.account_number;
                 loan.amountPaid = 0.0;
                 loan.remainingBalance = loan.principalAmount;
                 loan.status = "pending";
-                SubmitLoanApplication(loan, client.loans);
-                cout << "Loan application submitted successfully!" << endl;
+                SubmitLoanApplication(loan, globalLoanApplications);  // Use global
             }
             break;
             case 3:
@@ -261,6 +279,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
     int employeeID;
     cout <<"Please enter your Employee ID: ";
     cin >> employeeID;
+    cin.ignore(10000, '\n');
     int index=0;
     while (index<empcount && employees[index].employeeID!=employeeID){
         index++;
@@ -286,6 +305,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout <<"7. Display Statistics" << endl;
                 cout <<"8. Exit" << endl;
                 cin >> choice;
+                cin.ignore(10000, '\n');
                 switch (choice)
                 {
                     case 1:
@@ -293,18 +313,25 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                         Employee newEmp;
                         cout <<"Enter Employee ID: ";
                         cin >> newEmp.employeeID;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Name: ";
                         cin >> newEmp.name;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Last Name: ";
                         cin >> newEmp.lastName;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Address: ";
                         cin >> newEmp.adress;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Salary: ";
                         cin >> newEmp.salary;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Hire Date: ";
                         cin >> newEmp.hireDate;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter Bank Branch: ";
                         cin >> newEmp.BankBranch;
+                        cin.ignore(10000, '\n');
                         addEmployee(newEmp,employees,empcount);
                     }
                     break;
@@ -313,6 +340,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                         int empID;
                         cout <<"Enter Employee ID to remove: ";
                         cin >> empID;
+                        cin.ignore(10000, '\n');
                         removeEmployee(employees,empcount,empID);
                     }
                     break;
@@ -321,19 +349,26 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                         int empID;
                         cout <<"Enter Employee ID to update: ";
                         cin >> empID;
+                        cin.ignore(10000, '\n');
                         Employee updatedEmp;
                         cout <<"Enter New Name: ";
                         cin >> updatedEmp.name;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter New Last Name: ";
                         cin >> updatedEmp.lastName;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter New Address: ";
                         cin >> updatedEmp.adress;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter New Salary: ";
                         cin >> updatedEmp.salary;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter New Hire Date: ";
                         cin >> updatedEmp.hireDate;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter New Bank Branch: ";
                         cin >> updatedEmp.BankBranch;
+                        cin.ignore(10000, '\n');
                         updatedEmp.employeeID=empID;
                         updateEmployee(employees,empcount,empID,updatedEmp);
                     }
@@ -366,7 +401,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
             cout <<"Employee Space:" << endl;
             int choice;
             do{
-                cout<<"Please select an option: " << endl;
+                displayHeader("Employee Menu");
                 cout<<"1. Add Customer Account"<<endl;
                 cout <<"2. Display List of Accounts"<<endl;
                 cout<<"3. Change Status of an Account"<<endl;
@@ -379,6 +414,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout<<"10. Display Statistics"<<endl;
                 cout<<"11. Exit"<<endl;
                 cin >> choice;
+                cin.ignore(10000, '\n');
                 int loanID;
                 string CustomerID;
                 string newStatus;
@@ -397,9 +433,11 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                         cout<<"Enter the customer's Id";
                         string custId;
                         cin >> custId;
+                        cin.ignore(10000, '\n');
                         cout <<"Enter The new Status";
                         string newstat;
                         cin >> newstat;
+                        cin.ignore(10000, '\n');
                         changeStatusofaccount(customers,customerCount,custId,newstat);
                     }
                     break;
@@ -414,12 +452,15 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     {
                     cout<<"Enter Loan ID: ";
                     cin>>loanID;
+                    cin.ignore(10000, '\n');
                     cout<<"Enter Customer Account Number: ";
                     cin>>CustomerID;
+                    cin.ignore(10000, '\n');
                     int custIndex=findCustomerByAccountNumber(customers,customerCount,CustomerID);
                     LoanList* loans=customers[custIndex].loans;
                     cout<<"Enter New Status: ";
                     cin>>newStatus;
+                    cin.ignore(10000, '\n');
                     changeLoanStatus(loans, loanID, newStatus);
                     break;
                     }
@@ -432,11 +473,10 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     }
                     // In loginEmployeeInterface, employee space section:
                 case 8:
-                {
-                    LoanList* appliedLoans = createLoanList(); // You'll need to maintain this globally
-                    Manageloans(appliedLoans, customers, customerCount);
-                    break;
-                }
+                    {
+                        Manageloans(globalLoanApplications, customers, customerCount);  // Use global
+                        break;
+                    }
                 case 9:
                 {
                     EndTransactionList* EndTransactions = ManageTransactions(customers, customerCount);
@@ -511,6 +551,9 @@ void mainInterface(){
         empcount++;
     }
     empfile.close();
+    if (!globalLoanApplications) {
+    globalLoanApplications = createLoanList();
+    }
     int choice;
     cout <<"         Welcome to HideBank Management System         " << endl;
     cout <<"--------------------------------------------------------" << endl;
@@ -520,6 +563,7 @@ void mainInterface(){
     cout <<"3. Exit" << endl;
     cout <<"--------------------------------------------------------" << endl;
     cin >> choice;
+    cin.ignore(10000, '\n');
     switch (choice)
     {
     case 1:
@@ -554,6 +598,7 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
         cout<<"8. Number of Employees by Bank Branch"<<endl;
         cout<<"9. Exit Statistics Menu"<<endl;
         cin >> choice;
+        cin.ignore(10000, '\n');
         switch (choice){
             case 1:
             totalnumofloans(customers,customerCount);
@@ -581,6 +626,7 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
                 int branches;
                 cout <<"Enter number of bank branches: ";
                 cin >> branches;
+                cin.ignore(10000, '\n');
                 NumberofEmployeesbyBB(employees,empcount,branches);
             }
             break;
@@ -649,6 +695,17 @@ void bakcupcompletedloans(CompletedLoansList* list){
         }
     }
     return;
+}
+void displayHeader(string title) {
+    cout << "\n========================================" << endl;
+    cout << "   " << title << endl;
+    cout << "========================================\n" << endl;
+}
+
+void pauseScreen() {
+    cout << "\nPress Enter to continue...";
+    cin.ignore();
+    cin.get();
 }
 int main()
 {

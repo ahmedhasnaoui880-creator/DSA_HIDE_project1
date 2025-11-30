@@ -29,7 +29,7 @@ int SubmitLoanApplication(Loan loan, LoanList *loansapplications)
     LoanNode *appliedloan = createLoanNode(loan);
     if (!appliedloan)
     {
-        cout << "Space error please contact your agency";
+        cout << "Space error please contact your agency" << endl;
         return 1;
     }
     if (loansapplications->size == 0)
@@ -43,6 +43,8 @@ int SubmitLoanApplication(Loan loan, LoanList *loansapplications)
         appliedloan->prev = loansapplications->tail;
         loansapplications->tail = appliedloan;
     }
+    loansapplications->size++;  // ADD THIS LINE
+    cout << "Loan application submitted successfully!" << endl;
     return 0;
 }
 int Withdraw(Customer &client)
