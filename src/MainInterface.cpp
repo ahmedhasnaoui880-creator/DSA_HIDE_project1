@@ -87,7 +87,8 @@ LoanList* getCustomerLoans(string account_number){
             linepart = line.substr(0, line.find(','));
             line.erase(0, line.find(',') + 1);
             loan.endDate = linepart;
-            loan.status = line;
+            linepart = line.substr(0, line.find(','));
+            loan.status = linepart;
             LoanNode* newNode = createLoanNode(loan);
             if (loans->size == 0) {
                 loans->head = newNode;
@@ -104,78 +105,147 @@ LoanList* getCustomerLoans(string account_number){
     return loans;
 }
 TransactionStack* getCustomerTransactions(string account_number){
-    ifstream file ("../Data/Transactions.txt");
+    ifstream file("../Data/Transactions.txt");
     if (!file) {
-        return createTransactionStack();  // Return empty stack instead of nullptr
+        cout << "Warning: Could not open transactions file." << endl;
+        return createTransactionStack();
     }
-    TransactionStack* trStack=createTransactionStack();
+    
+    TransactionStack* trStack = createTransactionStack();
     string line;
-    while (getline(file,line)){
-        Transaction transaction;
-        string linepart=line.substr(0,line.find(','));
-        line.erase(0,line.find(',')+1);
-        transaction.transaction_id=linepart;
+    
+    while (getline(file, line)) {
+        if (line.empty()) continue;  // Skip empty lines
         
-        linepart=line.substr(0,line.find(','));
-        line.erase(0,line.find(',')+1);
-        if (linepart == account_number){  // Check if this transaction belongs to customer
-            transaction.account_number=linepart;
+        string originalLine = line;  // Keep original for debugging
+        Transaction transaction;
+        
+        // Read transaction_id
+        string linepart = line.substr(0, line.find(','));
+        line.erase(0, line.find(',') + 1);
+        transaction.transaction_id = linepart;
+        
+        // Read account_number
+        linepart = line.substr(0, line.find(','));
+        line.erase(0, line.find(',') + 1);
+        string txAccountNum = linepart;
+        
+        // Only process if this transaction belongs to this customer
+        if (txAccountNum == account_number) {
+            transaction.account_number = txAccountNum;
             
-            linepart=line.substr(0,line.find(','));
-            line.erase(0,line.find(',')+1);
-            transaction.type=linepart;
+            // Read type
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            transaction.type = linepart;
             
-            linepart=line.substr(0,line.find(','));
-            line.erase(0,line.find(',')+1);
-            transaction.amount=stod(linepart);
+            // Read amount
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            transaction.amount = stod(linepart);
             
-            transaction.date=line;
-            pushTransaction(trStack,transaction);
+            // Read date (rest of line, remove trailing comma if present)
+            transaction.date = line;
+            if (!transaction.date.empty() && transaction.date[transaction.date.length()-1] == ',') {
+                transaction.date.erase(transaction.date.length()-1);
+            }
+            
+            pushTransaction(trStack, transaction);
         }
     }
+    
     file.close();
     return trStack;
 }
 void BackupData(const Customer customers[],int customerCount,const Employee employees[],int empcount){
+    // DON'T open files yet - first check if we have data
+    
+    if (customerCount <= 0) {
+        cout << "Warning: No customers to backup." << endl;
+        return;
+    }
+    
+    // NOW open files - after we know we have data
     ofstream custfile("../Data/Customers.txt");
     ofstream loanfile("../Data/Loans.txt");
     ofstream transfile("../Data/Transactions.txt");
+    
     if (!custfile || !loanfile || !transfile) {
         cout << "Error opening file for backup." << endl;
         return;
     }
-    if (customerCount > 0) {
-    for (int i=0;i<customerCount;i++){
-        LoanNode* currentLoan = customers[i].loans->head;
-        while (currentLoan != nullptr) {
-            loanfile << currentLoan->data.account_number << "," << currentLoan->data.loanID << "," << currentLoan->data.loanType << "," << currentLoan->data.principalAmount << "," << currentLoan->data.interestRate << "," << currentLoan->data.amountPaid << "," << currentLoan->data.remainingBalance << "," << currentLoan->data.startDate << "," << currentLoan->data.endDate << "," << currentLoan->data.status << endl;
-            currentLoan = currentLoan->next;
+    
+    // Backup customers
+    for (int i = 0; i < customerCount; i++) {
+        custfile << customers[i].account_number << "," 
+                 << customers[i].account_type << "," 
+                 << customers[i].IBAN << "," 
+                 << customers[i].branch_code << "," 
+                 << customers[i].account_holder_name << "," 
+                 << customers[i].opening_date << "," 
+                 << customers[i].status << "," 
+                 << customers[i].balance << "," << endl;
+        
+        // Backup loans for this customer
+        if (customers[i].loans && customers[i].loans->head) {
+            LoanNode* currentLoan = customers[i].loans->head;
+            while (currentLoan != nullptr) {
+                loanfile << currentLoan->data.account_number << "," 
+                        << currentLoan->data.loanID << "," 
+                        << currentLoan->data.loanType << "," 
+                        << currentLoan->data.principalAmount << "," 
+                        << currentLoan->data.interestRate << "," 
+                        << currentLoan->data.amountPaid << "," 
+                        << currentLoan->data.remainingBalance << "," 
+                        << currentLoan->data.startDate << "," 
+                        << currentLoan->data.endDate << "," 
+                        << currentLoan->data.status << "," << endl;
+                currentLoan = currentLoan->next;
+            }
         }
-        TransactionStackNode* currentTransaction = customers[i].transactions->top;
-        // In BackupData function, change transaction saving to:
-        while (currentTransaction != nullptr) {
-            transfile << currentTransaction->data.transaction_id << "," 
-                    << currentTransaction->data.account_number << "," 
-                    << currentTransaction->data.type << "," 
-                    << currentTransaction->data.amount << "," 
-                    << currentTransaction->data.date << endl;
-            currentTransaction = currentTransaction->next;
+        
+        // Backup transactions for this customer
+        if (customers[i].transactions && customers[i].transactions->top) {
+            TransactionStackNode* currentTransaction = customers[i].transactions->top;
+            int txCount = 0;
+            while (currentTransaction != nullptr) {
+                transfile << currentTransaction->data.transaction_id << "," 
+                        << currentTransaction->data.account_number << "," 
+                        << currentTransaction->data.type << "," 
+                        << currentTransaction->data.amount << "," 
+                        << currentTransaction->data.date << endl;
+                currentTransaction = currentTransaction->next;
+                txCount++;
+            }
+            cout << "  Backed up " << txCount << " transactions for " << customers[i].account_number << endl;
         }
-
-        custfile << customers[i].account_number << "," << customers[i].account_type << "," << customers[i].IBAN << "," << customers[i].branch_code << "," << customers[i].account_holder_name << "," << customers[i].opening_date << "," << customers[i].status << "," << customers[i].balance<<"," << endl;
     }
-    }
+    
     custfile.close();
     loanfile.close();
     transfile.close();
-    if (!employees) {
-        return;
+    
+    // Backup employees
+    if (empcount > 0 && employees != nullptr) {
+        ofstream empfile("../Data/Employees.txt");
+        if (!empfile) {
+            cout << "Error opening employee file for backup." << endl;
+            return;
+        }
+        
+        for (int i = 0; i < empcount; i++) {
+            empfile << employees[i].employeeID << "," 
+                   << employees[i].name << "," 
+                   << employees[i].lastName << "," 
+                   << employees[i].adress << "," 
+                   << employees[i].salary << "," 
+                   << employees[i].hireDate << "," 
+                   << employees[i].BankBranch << "," << endl;
+        }
+        empfile.close();
     }
-    ofstream empfile("../Data/Employees.txt");
-    for (int i=0;i<empcount;i++){
-        empfile << employees[i].employeeID << "," << employees[i].name << "," << employees[i].lastName << "," << employees[i].adress << "," << employees[i].salary << "," << employees[i].hireDate << "," << employees[i].BankBranch<< "," << endl;
-    }
-    empfile.close();
+    
+    cout << "✓ Data backup completed successfully." << endl;
 }
 void loginCustomerInterface(Customer customers[], int customerCount)
 {

@@ -91,7 +91,12 @@ int Withdraw(Customer &client)
     tr.type = "withdrawal";
     tr.amount = withdrawamount;
     time_t now = time(0);
-    tr.date = ctime(&now);
+    string dateStr = ctime(&now);
+    // Remove trailing newline from ctime
+    if (!dateStr.empty() && dateStr[dateStr.length()-1] == '\n') {
+        dateStr.erase(dateStr.length()-1);
+    }
+    tr.date = dateStr;
     
     pushTransaction(client.transactions, tr);
     client.balance = client.balance - withdrawamount;
@@ -116,7 +121,12 @@ int Deposit(Customer &client)
     tr.type = "deposit";
     tr.amount = depositamount;
     time_t now = time(0);
-    tr.date = ctime(&now);
+    string dateStr = ctime(&now);
+    // Remove trailing newline from ctime
+    if (!dateStr.empty() && dateStr[dateStr.length()-1] == '\n') {
+        dateStr.erase(dateStr.length()-1);
+    }
+    tr.date = dateStr;
     
     pushTransaction(client.transactions, tr);
     client.balance = client.balance + depositamount;
