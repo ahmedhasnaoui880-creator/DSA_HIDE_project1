@@ -80,6 +80,7 @@ int removeAt(CompletedLoansList* L, int pos){
         toDelete = current->next;
         current->next = toDelete->next;
     }
+    return 0;
 }
 Loan getElement(const CompletedLoansList& L, int pos){
     Loan l; 

@@ -20,21 +20,24 @@ EndTransactionNode* createEndTransactionNode(const Transaction& transaction){
     }
     node->data=transaction;
     node->next=nullptr;
+    return node;
 }
-int addEndTransaction(EndTransactionList* list, const Transaction& transaction){
-    EndTransactionNode* node= createEndTransactionNode(transaction);
-    if (node==nullptr){
+int addEndTransaction(EndTransactionList* list, const Transaction& transaction)
+{
+    EndTransactionNode* node = createEndTransactionNode(transaction);
+    if (node == nullptr) {
         return 1;
     }
-    if (list->size=0){
-        list->head=node;
-    }
-    else{
-        EndTransactionNode* current=list->head;
-        while(current->next != nullptr){
-            current=current->next;
+    
+    if (list->size == 0) {  // Changed from = to ==
+        list->head = node;
+    } else {
+        EndTransactionNode* current = list->head;
+        while (current->next != nullptr) {
+            current = current->next;
         }
-        current->next=node;
+        current->next = node;
     }
+    list->size++;
     return 0;
 }

@@ -94,42 +94,38 @@ int displayEmployeeByBB(Employee employees[], int empcount)
 // Simple implementations for sorting helpers declared in the header
 void SortByAlpha(Employee employees[], int empcount)
 {
-    bool test=true;
-    do{
-        for (int i=0;i<empcount-1;i++){
-            if (employees[i].name>employees[i].name){
-                Employee aux=employees[i];
-                employees[i]=employees[i+1];
-                employees[i+1]=aux;
-                test=false;
+    for (int i = 0; i < empcount - 1; i++) {
+        for (int j = i + 1; j < empcount; j++) {
+            bool shouldSwap = false;
+            
+            if (employees[i].lastName > employees[j].lastName) {
+                shouldSwap = true;
+            } else if (employees[i].lastName == employees[j].lastName && 
+                       employees[i].name > employees[j].name) {
+                shouldSwap = true;
             }
-            else if (employees[i].name==employees[i].name){
-                if (employees[i].lastName>employees[i].lastName){
-                    Employee aux=employees[i];
-                employees[i]=employees[i+1];
-                employees[i+1]=aux;
-                test=false;
-                }
+            
+            if (shouldSwap) {
+                Employee temp = employees[i];
+                employees[i] = employees[j];
+                employees[j] = temp;
             }
         }
-    }while (test==false);
-    
     }
+}
 
 void SortByBB(Employee employees[], int empcount)
 {
-    bool test=true;
-    do{
-        for (int i=0;i<empcount-1;i++){
-            if (employees[i].BankBranch>employees[i].BankBranch){
-                Employee aux=employees[i];
-                employees[i]=employees[i+1];
-                employees[i+1]=aux;
-                test=false;
+    for (int i = 0; i < empcount - 1; i++) {
+        for (int j = i + 1; j < empcount; j++) {
+            if (employees[i].BankBranch > employees[j].BankBranch) {
+                Employee temp = employees[i];
+                employees[i] = employees[j];
+                employees[j] = temp;
             }
-            }
-        }while (test==false);
+        }
     }
+}
 
 // Wrapper functions to match signatures declared in the header file
 int findcustomerbyID(Customer custoemrs[],int custcount,string custID){
@@ -187,10 +183,24 @@ int deleteloan(CompletedLoansList* /*completed_loans*/)
 }
 int earliestHireDate(Employee employees[], int empcount)
 {
-    string maxdate = employees[0].hireDate;
-    for (int i = 1; i < empcount; i++)
-    {
+    if (empcount == 0) {
+        cout << "No employees available." << endl;
+        return 1;
     }
+    
+    string earliest = employees[0].hireDate;
+    int earliestIndex = 0;
+    
+    for (int i = 1; i < empcount; i++) {
+        if (employees[i].hireDate < earliest) {
+            earliest = employees[i].hireDate;
+            earliestIndex = i;
+        }
+    }
+    
+    cout << "Earliest hired employee: " << employees[earliestIndex].name 
+         << " " << employees[earliestIndex].lastName 
+         << " (Hired on: " << earliest << ")" << endl;
     return 0;
 }
 int latestHireDate(Employee employees[], int empcount)
@@ -211,15 +221,20 @@ int latestHireDate(Employee employees[], int empcount)
     cout << "The latest hire date is: " << latest << endl;
     return 0;
 }
-int addCustomer(Customer c, Customer customers[], int custmcount)
+int addCustomer(Customer c, Customer customers[], int& custmcount)
 {
-    if (custmcount >= 100)
-    {
+    if (custmcount >= 100) {
         cout << "No space available to add customer." << endl;
         return 1;
     }
+    
+    // Initialize customer's loans and transactions
+    c.loans = createLoanList();
+    c.transactions = createTransactionStack();
+    
     customers[custmcount] = c;
     custmcount++;
+    cout << "Customer added successfully!" << endl;
     return 0;
 }
 int displayCustomers(Customer customers[], int empcount)

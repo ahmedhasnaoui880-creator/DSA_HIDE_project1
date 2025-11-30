@@ -17,7 +17,7 @@ int displayEmployeeAlpha(Employee employees[],int empcount);
 int displayEmployeeByBB(Employee employees[],int empcount);
 int earliestHireDate(Employee employees[],int empcount);
 int latestHireDate(Employee employees[], int empcount);
-int addCustomer(Customer c, Customer customers[], int custmcount);
+int addCustomer(Customer c, Customer customers[], int& custmcount);
 int displayCustomers(Customer customers[], int custmcount);
 int changeStatusofaccount(Customer customers[], int custmcount,string custId,string newStat);
 int DeleteClosedAccounts(Customer customers[], int &empcount, Customer archived[], int &archcount);

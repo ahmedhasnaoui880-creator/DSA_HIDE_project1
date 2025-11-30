@@ -13,6 +13,8 @@
 #include <string>
 #include "CompletedLoansMeth.h"
 #include "EndTransactionMeth.h"
+#include <ctime>
+#include <cstdlib>
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
@@ -164,84 +166,88 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
     }
     empfile.close();
 }
-void loginCustomerInterface(Customer customers[],int customerCount){
+void loginCustomerInterface(Customer customers[], int customerCount)
+{
     string account_number;
-    cout <<"Please enter your account number: ";
+    cout << "Please enter your account number: ";
     cin >> account_number;
-    int index=0;
-    while (index<customerCount && customers[index].account_number!=account_number){
+    
+    int index = 0;
+    while (index < customerCount && customers[index].account_number != account_number) {
         index++;
     }
-    if (index==customerCount){
-        cout <<"Account not found";
+    
+    if (index == customerCount) {
+        cout << "Account not found" << endl;
         return;
     }
-    else{
-        Customer& client=customers[index];
-        cout <<"Welcome " << client.account_holder_name << endl;
-        int choice;
-        do{
-            cin >> choice;
-            cout <<"Please select an option: " << endl;
-            cout <<"1. View Loans" << endl;
-            cout <<"2. Submit Loan Application" << endl;
-            cout <<"3. Withdraw" << endl;
-            cout <<"4. Deposit" << endl;
-            cout <<"5. View Transaction History" << endl;
-            cout <<"6. Undo Last Transaction" << endl;
-            cout <<"7. Exit" << endl;
+    
+    Customer& client = customers[index];
+    cout << "Welcome " << client.account_holder_name << endl;
+    int choice;
+    
+    do {
+        cout << "\nPlease select an option: " << endl;
+        cout << "1. View Loans" << endl;
+        cout << "2. Submit Loan Application" << endl;
+        cout << "3. Withdraw" << endl;
+        cout << "4. Deposit" << endl;
+        cout << "5. View Transaction History" << endl;
+        cout << "6. Undo Last Transaction" << endl;
+        cout << "7. Exit" << endl;
+        cout << "Choice: ";
+        cin >> choice;  // Moved here - AFTER menu display
 
-            switch (choice)
-            {
-                case 1:
+        switch (choice)
+        {
+            case 1:
                 ViewLoans(client);
                 break;
-                case 2:
-                {
-                    Loan loan;
-                    cout <<"Enter Loan ID: ";
-                    cin >> loan.loanID;
-                    cout <<"Enter Loan Type: ";
-                    cin >> loan.loanType;
-                    cout <<"Enter Principal Amount: ";
-                    cin >> loan.principalAmount;
-                    cout <<"Enter Interest Rate: ";
-                    cin >> loan.interestRate;
-                    cout <<"Enter Start Date: ";
-                    cin >> loan.startDate;
-                cout <<"Enter End Date: ";
+            case 2:
+            {
+                Loan loan;
+                cout << "Enter Loan ID: ";
+                cin >> loan.loanID;
+                cout << "Enter Loan Type (car/home/student/business): ";
+                cin >> loan.loanType;
+                cout << "Enter Principal Amount: ";
+                cin >> loan.principalAmount;
+                cout << "Enter Interest Rate: ";
+                cin >> loan.interestRate;
+                cout << "Enter Start Date (DD/MM/YYYY): ";
+                cin >> loan.startDate;
+                cout << "Enter End Date (DD/MM/YYYY): ";
                 cin >> loan.endDate;
-                loan.account_number=client.account_number;
-                loan.amountPaid=0.0;
-                loan.remainingBalance=loan.principalAmount;
-                loan.status="pending";
-                SubmitLoanApplication(loan,client.loans);
+                loan.account_number = client.account_number;
+                loan.amountPaid = 0.0;
+                loan.remainingBalance = loan.principalAmount;
+                loan.status = "pending";
+                SubmitLoanApplication(loan, client.loans);
+                cout << "Loan application submitted successfully!" << endl;
             }
             break;
-        case 3:
-        cout <<"Enter amount to withdraw: ";
-            Withdraw(client);
-            break;
+            case 3:
+                Withdraw(client);
+                break;
             case 4:
-            Deposit(client);
-            break;
+                Deposit(client);
+                break;
             case 5:
-            ViewTransactionHistory(*client.transactions);
-            break;
+                ViewTransactionHistory(*client.transactions);
+                break;
             case 6:
-            UndoLastTransaction(client.transactions);
-            break;
+                UndoLastTransaction(client);
+                break;
             case 7:
-            cout <<"Exiting customer interface." << endl;
-            BackupData(customers,customerCount,nullptr,0);
-            mainInterface();
-            break;
+                cout << "Exiting customer interface." << endl;
+                BackupData(customers, customerCount, nullptr, 0);
+                mainInterface();
+                break;
             default:
-            cout <<"Invalid choice. Please try again." << endl;
-            break;
+                cout << "Invalid choice. Please try again." << endl;
+                break;
         }
-    }while(choice!=7);
-    }
+    } while (choice != 7);
 }
 int findCustomerByAccountNumber(Customer customers[], int customerCount, string account_number){
     for (int i = 0; i < customerCount; i++){
@@ -424,23 +430,35 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     bakcupcompletedloans(completed_loans);
                     break;
                     }
-                    case 8:
-                    {
-                    ManageTransactions(customers,customerCount);
+                    // In loginEmployeeInterface, employee space section:
+                case 8:
+                {
+                    LoanList* appliedLoans = createLoanList(); // You'll need to maintain this globally
+                    Manageloans(appliedLoans, customers, customerCount);
                     break;
-                    }
-                    case 9:
-                    {
-                    EndTransactionList* EndTransactions=ManageTransactions(customers,customerCount);
+                }
+                case 9:
+                {
+                    EndTransactionList* EndTransactions = ManageTransactions(customers, customerCount);
+                    cout << "All transactions have been finalized for the day." << endl;
                     break;
-                    }
-                    default:{
+                }
+                case 10:
+                    cout << "Displaying statistics." << endl;
+                    displayStatistics(employees, empcount, customers, customerCount);
+                    break;
+                case 11:
+                    cout << "Exiting employee interface." << endl;
+                    BackupData(customers, customerCount, employees, empcount);
+                    mainInterface();
+                    break;
+                default:{
                         cout <<"Invalide Choice";
                         break;
                     }
-        }
-    }while (choice!=11);
-}
+                    }
+        }while (choice!=11);
+    }
 }
 }
 void mainInterface(){

@@ -15,6 +15,8 @@
                 "${workspaceFolder}\\src\\LoanMeth.cpp",
                 "${workspaceFolder}\\src\\Statistics.cpp",
                 "${workspaceFolder}\\src\\TransactionMeth.cpp",
+                "${workspaceFolder}\\src\\CompletedLoansMeth.cpp",
+                "${workspaceFolder}\\src\\EndTransactionMeth.cpp",
                 "-o",
                 "${workspaceFolder}\\src\\main.exe"
             ],

@@ -47,60 +47,78 @@ int SubmitLoanApplication(Loan loan, LoanList *loansapplications)
 }
 int Withdraw(Customer &client)
 {
-    int choice=0;
-    int withdrawamount;
-    cout <<"Choose a withdraw amount:"<<endl;
-    cout <<"1. 10TND"<<endl;
-    cout <<"2. 20TND"<<endl;
-    cout <<"3. 50TND"<<endl;
-    cout <<"4. Another amount"<<endl;
+    int choice = 0;
+    double withdrawamount = 0;
+    cout << "Choose a withdraw amount:" << endl;
+    cout << "1. 10TND" << endl;
+    cout << "2. 20TND" << endl;
+    cout << "3. 50TND" << endl;
+    cout << "4. Another amount" << endl;
     cin >> choice;
-    do{
-
-        switch (choice)
-        {
-            case 1:
-            withdrawamount=10;
-            break;
-            case 2:
-            withdrawamount=20;
-            break;
-            case 3:
-            withdrawamount=50;
-            break;
-            case 4:
-        cout << "Choose an amount:"<<endl;
-        cin >> choice;
-        
-        default:
-        cout << "Invalide choice!";
-        break;
-    }
-}while (choice!=1 && choice!=2 && choice!=3 && choice!=4 );
-    if (withdrawamount > client.balance || withdrawamount<10)
+    
+    switch (choice)
     {
-        cout << "Sorry u Cannot withdraw that amount please try another!"<<endl;
+        case 1:
+            withdrawamount = 10;
+            break;
+        case 2:
+            withdrawamount = 20;
+            break;
+        case 3:
+            withdrawamount = 50;
+            break;
+        case 4:
+            cout << "Enter amount: ";
+            cin >> withdrawamount;
+            break;
+        default:
+            cout << "Invalid choice!" << endl;
+            return 1;
+    }
+    
+    if (withdrawamount > client.balance || withdrawamount < 10)
+    {
+        cout << "Sorry, you cannot withdraw that amount. Please try another!" << endl;
         return 1;
     }
-    else
-    {
-        client.balance = client.balance - withdrawamount;
-        cout << "with draw is seccessful";
-    }
+    
+    // Create transaction record
+    Transaction tr;
+    tr.transaction_id = to_string(rand() % 1000000000);
+    tr.account_number = client.account_number;
+    tr.type = "withdrawal";
+    tr.amount = withdrawamount;
+    time_t now = time(0);
+    tr.date = ctime(&now);
+    
+    pushTransaction(client.transactions, tr);
+    client.balance = client.balance - withdrawamount;
+    cout << "Withdrawal successful! New balance: " << client.balance << " TND" << endl;
     return 0;
 }
 int Deposit(Customer &client)
 {
-    float depositamount;
-    do{
-        cout<<"Enter Your Deposit amount";
+    double depositamount;
+    do {
+        cout << "Enter your deposit amount: ";
         cin >> depositamount;
-        if (depositamount<=0){
-            cout <<"Invalide Amout Please Retry!";
+        if (depositamount <= 0) {
+            cout << "Invalid amount! Please retry!" << endl;
         }
-    }while (depositamount<=0);
+    } while (depositamount <= 0);
+    
+    // Create transaction record
+    Transaction tr;
+    tr.transaction_id = to_string(rand() % 1000000000);
+    tr.account_number = client.account_number;
+    tr.type = "deposit";
+    tr.amount = depositamount;
+    time_t now = time(0);
+    tr.date = ctime(&now);
+    
+    pushTransaction(client.transactions, tr);
     client.balance = client.balance + depositamount;
-    cout << "Your deposit is seccessful";
+    cout << "Your deposit is successful! New balance: " << client.balance << " TND" << endl;
     return 0;
 }
 int ViewTransactionHistory(const TransactionStack &t)
@@ -124,8 +142,24 @@ int ViewTransactionHistory(const TransactionStack &t)
     }
     return 0;
 }
-int UndoLastTransaction(TransactionStack *t)
+int UndoLastTransaction(Customer &client)
 {
-    Transaction undoTransaction=popTransaction(t);
+    if (isTransactionStackEmpty(*client.transactions)) {
+        cout << "No transactions to undo!" << endl;
+        return 1;
+    }
+    
+    Transaction undoTransaction = popTransaction(client.transactions);
+    
+    // Reverse the transaction effect
+    if (undoTransaction.type == "deposit") {
+        client.balance -= undoTransaction.amount;
+        cout << "Deposit of " << undoTransaction.amount << " TND has been undone." << endl;
+    } else if (undoTransaction.type == "withdrawal") {
+        client.balance += undoTransaction.amount;
+        cout << "Withdrawal of " << undoTransaction.amount << " TND has been undone." << endl;
+    }
+    
+    cout << "New balance: " << client.balance << " TND" << endl;
     return 0;
 }

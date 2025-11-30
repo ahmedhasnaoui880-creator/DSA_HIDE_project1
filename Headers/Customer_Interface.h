@@ -7,5 +7,5 @@ int SubmitLoanApplication(Loan loan,LoanList* loansapplications);
 int Withdraw(Customer& client);
 int Deposit(Customer& client);
 int ViewTransactionHistory(const TransactionStack &t);
-int UndoLastTransaction(TransactionStack *t);
+int UndoLastTransaction(Customer& client);
 #endif // CUSTOMER_INTERFACE_H
