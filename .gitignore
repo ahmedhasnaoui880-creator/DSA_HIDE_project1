@@ -1,0 +1,9 @@
+# Ignore built executable
+/src/main.exe
+
+# Common build artifacts
+*.o
+*.obj
+*.exe
+*.log
+.DS_Store
