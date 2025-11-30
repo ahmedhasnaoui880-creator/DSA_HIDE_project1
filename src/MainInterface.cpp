@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "CompletedLoansList.h"
+#include "CompletedLoansMeth.h"
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
@@ -577,16 +577,58 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
 }
 
 // Minimal implementations for completed loans helpers (prevent linker errors)
-CompletedLoansList* loadCompletedLoans(string /*clfile*/){
-    CompletedLoansList* list = new CompletedLoansList();
-    list->head = nullptr;
-    list->tail = nullptr;
-    list->size = 0;
+CompletedLoansList* loadCompletedLoans(string path){
+    CompletedLoansList* list = createCompletedLoanList();
+    ifstream clfile (path);
+    string line;
+    string linepart;
+    int pos=0;
+    while (getline(clfile,line)){
+        Loan completedloan;
+        linepart = line.substr(0, line.find(','));
+        line.erase(0, line.find(',') + 1);
+        completedloan.account_number = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.loanID = stoi(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.loanType = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.principalAmount = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.interestRate = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.amountPaid = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.remainingBalance = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.startDate = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            completedloan.endDate = linepart;
+            completedloan.status = line;
+            if (!insertIntoConpletedLoans(list,completedloan,pos)){
+                cout <<"Insertion failed for loan num"<<pos+1<<"please check your data file";
+            }
+    }
     return list;
 }
 
-void bakcupcompletedloans(CompletedLoansList* /*clist*/){
-    // Placeholder: no-op backup implementation. Real backup logic can be added later.
+void bakcupcompletedloans(CompletedLoansList* list){
+    CompletedLoansListNode* current=list->head;
+    if (list->size>0){
+        ofstream clfile ("CompletedLoans.txt");
+        while (current!=nullptr){
+            clfile << current->data.account_number << "," << current->data.loanID << "," << current->data.loanType << "," << current->data.principalAmount << "," << current->data.interestRate << "," << current->data.amountPaid << "," << current->data.remainingBalance << "," << current->data.startDate << "," << current->data.endDate << "," << current->data.status << endl;
+            current = current->next;
+        }
+    }
     return;
 }
 int main()

@@ -1,6 +1,6 @@
 #include "Employee.h"
 #include "Customer.h"
-#include "LoanList.h"
+#include "LoanMeth.h"
 #include "CompletedLoansListMeth.h"
 #include <iostream>
 using namespace std;
@@ -329,8 +329,42 @@ int deleteloan(LoanNode *completed_loans, LoanNode *head)
     }
     return 0;
 }
-int Manageloans()
+int Manageloans(LoanList* appliedloans,Customer customers[],int custcount)
 {
+    if (appliedloans->size==0){
+        cout <<"No Loans applications for the moment please check again later";
+        return 1;
+    }
+    else{
+        cout <<"The Cusomer With ID "<< appliedloans->head->data.account_number<<"Made the application for a Loan"<<endl;
+        cout <<"The Loan ID:"<<appliedloans->head->data.loanID<<endl;
+        cout <<"The Loan Type"<<appliedloans->head->data.loanType<<endl;
+        cout<<"The Loan Principale amount"<<appliedloans->head->data.principalAmount<<endl;
+        cout<<"The Loan's interest rate:"<<appliedloans->head->data.interestRate<<endl;
+        cout<<"The Loan's amount paid in advance"<<appliedloans->head->data.amountPaid<<endl;
+        cout<<"The Loan's remainingBalance"<<appliedloans->head->data.remainingBalance<<endl;
+        cout<<"The Loan's Starting Date"<<appliedloans->head->data.startDate<<endl;
+        cout<<"The Loan's Ending Date"<<appliedloans->head->data.endDate<<endl;
+        cout<<"Would You Accept This Application?"<<endl;
+        cout<<"1.Yes"<<endl;
+        cout<<"2.No"<<endl;
+        int choice;
+        cin >> choice;
+        do{
+
+            if (choice==1){
+                int index=findcustomerbyID(customers,custcount,appliedloans->head->data.account_number);
+                insertLoan(customers[index].loans, appliedloans->head->data, 1);
+                removeLoan(appliedloans,appliedloans->head->data.loanID);
+            }
+        else if (choice==0){
+            removeLoan(appliedloans,appliedloans->head->data.loanID);
+        }
+        else{
+            cout <<"Invalide choice please try again";
+        }
+    }while (choice!=1 && choice!=0);
+    }
     return 0;
 }
 int ManageTransactions()
