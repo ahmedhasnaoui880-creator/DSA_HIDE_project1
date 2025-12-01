@@ -23,6 +23,17 @@ CompletedLoansList* loadCompletedLoans(string clfile);
 void displayHeader(string title);
 void pauseScreen();
 void mainInterface();
+void displayHeader(string title) {
+    cout << "\n========================================" << endl;
+    cout << "  " << title << endl;
+    cout << "========================================\n" << endl;
+}
+
+void pauseScreen() {
+    cout << "\nPress Enter to continue...";
+    cin.ignore();
+    cin.get();
+}
 Customer Split_line_to_customer(string line){
     Customer cust;
     string linepart = line.substr(0, line.find(','));
@@ -207,7 +218,6 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
         // Backup transactions for this customer
         if (customers[i].transactions && customers[i].transactions->top) {
             TransactionStackNode* currentTransaction = customers[i].transactions->top;
-            int txCount = 0;
             while (currentTransaction != nullptr) {
                 transfile << currentTransaction->data.transaction_id << "," 
                         << currentTransaction->data.account_number << "," 
@@ -215,9 +225,7 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
                         << currentTransaction->data.amount << "," 
                         << currentTransaction->data.date << endl;
                 currentTransaction = currentTransaction->next;
-                txCount++;
             }
-            cout << "  Backed up " << txCount << " transactions for " << customers[i].account_number << endl;
         }
     }
     
@@ -765,17 +773,6 @@ void bakcupcompletedloans(CompletedLoansList* list){
         }
     }
     return;
-}
-void displayHeader(string title) {
-    cout << "\n========================================" << endl;
-    cout << "   " << title << endl;
-    cout << "========================================\n" << endl;
-}
-
-void pauseScreen() {
-    cout << "\nPress Enter to continue...";
-    cin.ignore();
-    cin.get();
 }
 int main()
 {
