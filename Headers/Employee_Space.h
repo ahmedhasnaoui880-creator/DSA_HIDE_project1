@@ -23,7 +23,7 @@ int changeStatusofaccount(Customer customers[], int custmcount,string custId,str
 int DeleteClosedAccounts(Customer customers[], int &empcount, Customer archived[], int &archcount);
 int displayloansbycustomer(Customer customers[], int custmcount);
 int changeLoanStatus(LoanList* loans, int loanID, string newStatus);
-int deleteloan(CompletedLoansList* completed_loans);
+int deleteloan(CompletedLoansList* completed_loans,Customer customers[],int custcount);
 int Manageloans(LoanList* appliedloans,Customer customers[],int custcount);
 EndTransactionList* ManageTransactions(Customer customers[],int custcount);
 #endif // EMPLOYEE_SPACE_H

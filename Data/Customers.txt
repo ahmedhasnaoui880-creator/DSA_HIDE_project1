@@ -1,4 +1,4 @@
-1234,Savings Account,TN5900001234567890123456,California Branch,Ahmed Aziz Hasnaoui,14/07/2024,active,20000,
+1234,Savings Account,TN5900001234567890123456,California Branch,Ahmed Aziz Hasnaoui,14/07/2024,active,19980,
 5678,Checking Account,TN5900005678901234567890,New York Branch,Sarah Johnson,22/03/2023,active,15000,
 9012,Business Account,TN5900009012345678901234,Texas Branch,Michael Chen,10/11/2022,active,50000,
 3456,Savings Account,TN5900003456789012345678,Florida Branch,Emily Rodriguez,05/01/2024,active,8500,

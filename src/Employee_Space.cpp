@@ -175,12 +175,6 @@ int changeLoanStatus(LoanList* loans, int loanID, string newStatus)
     }
     return 1;
 }
-
-int deleteloan(CompletedLoansList* /*completed_loans*/)
-{
-    // Placeholder wrapper: provide a minimal no-op wrapper to satisfy linker.
-    return 0;
-}
 int earliestHireDate(Employee employees[], int empcount)
 {
     if (empcount == 0) {
@@ -316,34 +310,24 @@ int changeLoanStatus(Loan &l, string s)
     }
     return 0;
 }
-int deleteloan(CompletedLoansList* completed_loans, LoanNode *head)
+int deleteloan(CompletedLoansList* completed_loans,Customer customers[],int custcount)
 {
-    LoanNode *prev = nullptr;
-    LoanNode *current = head;
-    int pos=0;
-    while (current != nullptr)
-    {
+    for (int i=0;i<custcount;i++){
+        LoanList* custloan=customers[i].loans;
+        LoanNode *current = custloan->head;
+        int pos=completed_loans->size;
+        while (current != nullptr)
+        {
         if (current->data.status == "completed")
         {
             insertIntoConpletedLoans(completed_loans,current->data,pos);
             pos++;
-            if (prev == nullptr)
-            {
-                head = current->next;
-            }
-            else
-            {
-                prev->next = current->next;
-            }
-            LoanNode *temp = current;
-            current = current->next;
-            delete temp;
+            removeLoan(customers[i].loans,current->data.loanID);
         }
-        else
-        {
-            prev = current;
-            current = current->next;
+        else{
+            current=current->next;
         }
+}
     }
     return 0;
 }

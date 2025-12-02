@@ -15,7 +15,7 @@
 #include "EndTransactionMeth.h"
 #include <ctime>
 #include <cstdlib>
-LoanList* globalLoanApplications = nullptr;
+LoanList* globalLoanApplications = createLoanList();
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
@@ -545,7 +545,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     case 7:
                     {
                     CompletedLoansList* completed_loans = loadCompletedLoans("../Data/CompletedLoans.txt");
-                    deleteloan(completed_loans);
+                    deleteloan(completed_loans,customers,customerCount);
                     bakcupcompletedloans(completed_loans);
                     break;
                     }
