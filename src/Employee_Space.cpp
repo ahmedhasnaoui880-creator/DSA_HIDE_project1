@@ -4,6 +4,7 @@
 #include "CompletedLoansMeth.h"
 #include "TransactionMeth.h"
 #include "EndTransactionMeth.h"
+#include "Input_Validation.h"
 #include <iostream>
 using namespace std;
 // Forward declarations for functions implemented later in this file
@@ -456,45 +457,65 @@ int Manageloans(LoanList* appliedloans, Customer customers[], int custcount)
         }
         
     }while (choice !=1 && choice !=0);
-    cout<<"\nWould You Like To Answer Another Loan Request\n";
-    cout<<"1.Yes"<<endl<<"2.No"<<endl;
-    do{
-        cin >> choice;
-        cin.ignore(10000,'\n');
-        if (choice==1){
-            Manageloans(appliedloans,customers,custcount);
+    if (appliedloans->size > 0) {
+        cout << "\n" << appliedloans->size << " loan application(s) remaining." << endl;
+        cout << "Would you like to process another loan request?" << endl;
+        cout << "1. Yes" << endl;
+        cout << "2. No" << endl;
+        
+        int continueChoice = getValidInteger("Choice: ", 1, 2);
+        
+        if (continueChoice == 1) {
+            return Manageloans(appliedloans, customers, custcount);
         }
-        else if (choice==0){
-            return 0;
-        }
-        else{
-            cout << "Invalide Choice Please Choose from the list above";
-        }
-    }while (choice!=1 && choice!=0);
+    } else {
+        cout << "✓ All loan applications have been processed!" << endl;
+    }
+    
+    return 0;
 }
 
 EndTransactionList* ManageTransactions(Customer customers[], int custcount)
 {
+    cout << "\n===== DAILY TRANSACTION MANAGEMENT =====" << endl;
+    cout << "This will archive all daily transactions." << endl;
+    cout << "Is it the end of the day?" << endl;
+    cout << "1. Yes - Finalize and archive transactions" << endl;
+    cout << "2. No - Cancel operation" << endl;
+    cout << "Choice: ";
+    
+    int choice;
+    cin >> choice;
+    cin.ignore(10000, '\n');
+    
+    if (choice != 1) {
+        cout << "✓ Operation cancelled. Transactions remain active." << endl;
+        return nullptr;
+    }
+    
     cout << "\n===== FINALIZING DAILY TRANSACTIONS =====" << endl;
     EndTransactionList* EndTransactions = createEndTransactionList();
     int totalTransactions = 0;
     
-    for (int i = 0; i < custcount; i++){
+    for (int i = 0; i < custcount; i++) {
         int custTransCount = 0;
-        while (!isTransactionStackEmpty(*customers[i].transactions)){
-            Transaction poped = popTransaction(customers[i].transactions);
-            addEndTransaction(EndTransactions, poped);
+        
+        // COPY transactions instead of removing them
+        TransactionStackNode* current = customers[i].transactions->top;
+        while (current != nullptr) {
+            addEndTransaction(EndTransactions, current->data);
             custTransCount++;
             totalTransactions++;
+            current = current->next;
         }
         if (custTransCount > 0) {
             cout << "  Customer " << customers[i].account_number 
-                 << ": " << custTransCount << " transaction(s) finalized." << endl;
+                 << ": " << custTransCount << " transaction(s) archived." << endl;
         }
     }
     
     cout << "✓ Total of " << totalTransactions << " transaction(s) finalized for the day." << endl;
-    cout << "✓ All transaction stacks have been cleared." << endl;
+    cout << "✓ Customers can no longer undo these transactions." << endl;
     cout << "==========================================" << endl;
     
     return EndTransactions;

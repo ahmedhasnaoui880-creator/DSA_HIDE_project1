@@ -403,31 +403,46 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     case 3:
                     {
                         int empID;
-                        cout <<"Enter Employee ID to update: ";
+                        cout << "Enter Employee ID to update: ";
                         cin >> empID;
                         cin.ignore(10000, '\n');
+                        
+                        // Check if employee exists
+                        int index = -1;
+                        for (int i = 0; i < empcount; i++) {
+                            if (employees[i].employeeID == empID) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        
+                        if (index == -1) {
+                            cout << "✗ Employee ID " << empID << " not found!" << endl;
+                            break;
+                        }
+    
+                        // Display current employee info
+                        cout << "\n===== CURRENT EMPLOYEE INFO =====" << endl;
+                        cout << "Name: " << employees[index].name << " " << employees[index].lastName << endl;
+                        cout << "Address: " << employees[index].adress << endl;
+                        cout << "Salary: " << employees[index].salary << " TND" << endl;
+                        cout << "Hire Date: " << employees[index].hireDate << endl;
+                        cout << "Bank Branch: " << employees[index].BankBranch << endl;
+                        cout << "================================\n" << endl;
+                        
                         Employee updatedEmp;
-                        cout <<"Enter New Name: ";
-                        cin >> updatedEmp.name;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter New Last Name: ";
-                        cin >> updatedEmp.lastName;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter New Address: ";
-                        cin >> updatedEmp.adress;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter New Salary: ";
-                        cin >> updatedEmp.salary;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter New Hire Date: ";
-                        cin >> updatedEmp.hireDate;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter New Bank Branch: ";
-                        cin >> updatedEmp.BankBranch;
-                        cin.ignore(10000, '\n');
-                        updatedEmp.employeeID=empID;
-                        updateEmployee(employees,empcount,empID,updatedEmp);
-                    }
+                        updatedEmp.employeeID = empID;
+                        
+                        // Use validation functions
+                        updatedEmp.name = getValidString("Enter New Name: ");
+                        updatedEmp.lastName = getValidString("Enter New Last Name: ");
+                        updatedEmp.adress = getValidString("Enter New Address: ");
+                        updatedEmp.salary = getValidDouble("Enter New Salary (TND): ", 0.01);
+                        updatedEmp.hireDate = getValidDate("Enter New Hire Date (DD/MM/YYYY): ");
+                        updatedEmp.BankBranch = getValidBankBranch();
+                        
+                        updateEmployee(employees, empcount, empID, updatedEmp);
+}
                     break;
                     case 4:
                     displayEmployeeAlpha(employees,empcount);
@@ -503,15 +518,41 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     displayCustomers(customers,customerCount);
                     break;
                     case 3:{
-                        cout<<"Enter the customer's Id";
-                        string custId;
-                        cin >> custId;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter The new Status";
-                        string newstat;
-                        cin >> newstat;
-                        cin.ignore(10000, '\n');
-                        changeStatusofaccount(customers,customerCount,custId,newstat);
+                        // Get account number
+                        string custId = getValidString("Enter Customer Account Number: ");
+                        
+                        // Check if customer exists
+                        int index = findCustomerByAccountNumber(customers, customerCount, custId);
+                        if (index == -1) {
+                            cout << "✗ Customer with account number '" << custId << "' not found!" << endl;
+                            break;
+                        }
+                        
+                        // Display current status
+                        cout << "\nCustomer: " << customers[index].account_holder_name << endl;
+                        cout << "Current Status: " << customers[index].status << endl;
+                        cout << "Current Balance: " << customers[index].balance << " TND" << endl;
+                        
+                        // Get new status with validation
+                        string newstat = getValidStatus();
+                        
+                        // Confirm if changing to closed
+                        if (newstat == "closed" && customers[index].status != "closed") {
+                            cout << "\n⚠ WARNING: Closing this account will:" << endl;
+                            cout << "  - Set balance to 0 TND" << endl;
+                            cout << "  - Mark account as permanently closed" << endl;
+                            cout << "\nAre you sure you want to continue?" << endl;
+                            cout << "1. Yes" << endl;
+                            cout << "2. No" << endl;
+                            
+                            int confirm = getValidInteger("Choice: ", 1, 2);
+                            if (confirm != 1) {
+                                cout << "✓ Operation cancelled. Status unchanged." << endl;
+                                break;
+                            }
+                        }
+    
+                        changeStatusofaccount(customers, customerCount, custId, newstat);
                     }
                     break;
                     case 4:{
@@ -523,20 +564,63 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     break;
                     case 6:
                     {
-                    cout<<"Enter Loan ID: ";
-                    cin>>loanID;
-                    cin.ignore(10000, '\n');
-                    cout<<"Enter Customer Account Number: ";
-                    cin>>CustomerID;
-                    cin.ignore(10000, '\n');
-                    int custIndex=findCustomerByAccountNumber(customers,customerCount,CustomerID);
-                    LoanList* loans=customers[custIndex].loans;
-                    cout<<"Enter New Status: ";
-                    cin>>newStatus;
-                    cin.ignore(10000, '\n');
-                    changeLoanStatus(loans, loanID, newStatus);
-                    break;
+                        cout << "\n===== CHANGE LOAN STATUS =====" << endl;
+                        
+                        // Get and validate customer account
+                        string CustomerID = getValidString("Enter Customer Account Number: ");
+                        int custIndex = findCustomerByAccountNumber(customers, customerCount, CustomerID);
+                        
+                        if (custIndex == -1) {
+                            cout << "✗ Customer not found!" << endl;
+                            break;
+                        }
+                        
+                        // Check if customer has loans
+                        if (!customers[custIndex].loans || customers[custIndex].loans->size == 0) {
+                            cout << "✗ This customer has no loans!" << endl;
+                            break;
+                        }
+                        
+                        // Display customer loans
+                        cout << "\nLoans for " << customers[custIndex].account_holder_name << ":" << endl;
+                        LoanNode* current = customers[custIndex].loans->head;
+                        while (current) {
+                            cout << "  Loan ID: " << current->data.loanID 
+                                << " | Type: " << current->data.loanType 
+                                << " | Status: " << current->data.status << endl;
+                            current = current->next;
+                        }
+                        
+                        // Get loan ID
+                        int loanID = getValidInteger("\nEnter Loan ID to modify: ", 1, 999999);
+                        
+                        // Find the loan
+                        Loan* loan = findLoan(*customers[custIndex].loans, loanID);
+                        if (!loan) {
+                            cout << "✗ Loan ID " << loanID << " not found!" << endl;
+                            break;
+                        }
+                        
+                        cout << "\nCurrent status: " << loan->status << endl;
+                        cout << "Choose new status:" << endl;
+                        cout << "1. active" << endl;
+                        cout << "2. completed" << endl;
+                        cout << "3. overdue" << endl;
+                        cout << "4. closed" << endl;
+                        
+                        int statusChoice = getValidInteger("Choice: ", 1, 4);
+                        string newStatus;
+                        
+                        switch (statusChoice) {
+                            case 1: newStatus = "active"; break;
+                            case 2: newStatus = "completed"; break;
+                            case 3: newStatus = "overdue"; break;
+                            case 4: newStatus = "closed"; break;
+                        }
+                        
+                        changeLoanStatus(customers[custIndex].loans, loanID, newStatus);
                     }
+                    break;
                     case 7:
                     {
                     CompletedLoansList* completed_loans = loadCompletedLoans("../Data/CompletedLoans.txt");
@@ -574,17 +658,32 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
     }
 }
 }
+bool validateCustomerData(const Customer& cust) {
+    if (cust.account_number.empty()) return false;
+    if (cust.account_holder_name.empty()) return false;
+    if (cust.balance < 0) return false;
+    if (cust.status != "active" && cust.status != "inactive" && cust.status != "closed") return false;
+    return true;
+}
 void mainInterface(){
     ifstream file("../Data/Customers.txt");
     if (!file) {
-        cout << "Error opening file." << endl;
-        return ;
+        cout << "✗ ERROR: Could not open ../Data/Customers.txt" << endl;
+        cout << "Please ensure:" << endl;
+        cout << "  1. The Data folder exists" << endl;
+        cout << "  2. The Customers.txt file exists" << endl;
+        cout << "  3. You're running from the correct directory" << endl;
+        return;
     }
     Customer customers[100];
     int customerCount = 0;
     string line;
     while (getline(file, line) && customerCount < 100) {
         Customer cust=Split_line_to_customer(line);
+        if (!validateCustomerData(cust)) {
+        cout << "⚠ Warning: Invalid customer data on line " << (customerCount + 1) << ", skipping..." << endl;
+        continue;
+        }
         cust.loans = getCustomerLoans(cust.account_number);
         cust.transactions = getCustomerTransactions(cust.account_number);
         customers[customerCount] = cust;
@@ -593,8 +692,11 @@ void mainInterface(){
     file.close();
     ifstream empfile("../Data/Employees.txt");
     if (!empfile) {
-        cout << "Error opening employee file." << endl;
-        return ;
+        cout << "✗ ERROR: Could not open ../Data/Employees.txt" << endl;
+        cout << "Please ensure:" << endl;
+        cout << "  1. The Data folder exists" << endl;
+        cout << "  2. The Customers.txt file exists" << endl;
+        cout << "  3. You're running from the correct directory" << endl;
     }
     Employee employees[100];
     int empcount=0;
@@ -624,6 +726,8 @@ void mainInterface(){
         empcount++;
     }
     empfile.close();
+    cout << "✓ Loaded " << customerCount << " customer(s)" << endl;
+    cout << "✓ Loaded " << empcount << " employee(s)" << endl;
     if (!globalLoanApplications) {
     globalLoanApplications = createLoanList();
     }
@@ -649,10 +753,11 @@ void mainInterface(){
         BackupData(customers,customerCount,employees,empcount);
         cout << "Exiting the system. Goodbye!" << endl;
         break;
-    default:
-        cout << "Invalid choice. Please try again." << endl;
-        break;
     }
+    if (choice != 3) {
+    cout << "\nReturning to main menu..." << endl;
+    mainInterface();  // Return to main menu
+}
 
 }
 void displayStatistics(Employee employees[], int empcount,Customer customers[], int customerCount){
@@ -669,8 +774,7 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
         cout<<"7. Number of Employees"<<endl;
         cout<<"8. Number of Employees by Bank Branch"<<endl;
         cout<<"9. Exit Statistics Menu"<<endl;
-        cin >> choice;
-        cin.ignore(10000, '\n');
+        choice = getValidInteger("Choice: ", 1, 9);
         switch (choice){
             case 1:
             totalnumofloans(customers,customerCount);
@@ -704,9 +808,6 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
             break;
             case 9:
             cout << "Exiting Statistics Menu." << endl;
-            break;
-            default:
-            cout << "Invalid choice. Please try again." << endl;
             break;
         }
     }while (choice!=9);

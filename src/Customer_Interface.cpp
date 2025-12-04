@@ -110,14 +110,11 @@ int Withdraw(Customer &client)
 }
 int Deposit(Customer &client)
 {
-    double depositamount;
-    do {
-        cout << "Enter your deposit amount: ";
-        cin >> depositamount;
-        if (depositamount <= 0) {
-            cout << "Invalid amount! Please retry!" << endl;
-        }
-    } while (depositamount <= 0);
+    cout << "\n===== DEPOSIT MONEY =====" << endl;
+    cout << "Current Balance: " << client.balance << " TND" << endl;
+    
+    // Use validation for deposit amount
+    double depositamount = getValidDouble("\nEnter deposit amount (TND): ", 0.01);
     
     // Create transaction record
     Transaction tr;
@@ -127,7 +124,6 @@ int Deposit(Customer &client)
     tr.amount = depositamount;
     time_t now = time(0);
     string dateStr = ctime(&now);
-    // Remove trailing newline from ctime
     if (!dateStr.empty() && dateStr[dateStr.length()-1] == '\n') {
         dateStr.erase(dateStr.length()-1);
     }
@@ -135,7 +131,7 @@ int Deposit(Customer &client)
     
     pushTransaction(client.transactions, tr);
     client.balance = client.balance + depositamount;
-    cout << "Your deposit is successful! New balance: " << client.balance << " TND" << endl;
+    cout << "✓ Deposit successful! New balance: " << client.balance << " TND" << endl;
     return 0;
 }
 int ViewTransactionHistory(const TransactionStack &t)
