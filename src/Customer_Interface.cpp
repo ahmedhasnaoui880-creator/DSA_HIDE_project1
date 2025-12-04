@@ -2,6 +2,7 @@
 #include "Customer.h"
 #include "TransactionMeth.h"
 #include <iostream>
+#include "Input_Validation.h"
 using namespace std;
 int ViewLoans(Customer client)
 {
@@ -51,12 +52,16 @@ int Withdraw(Customer &client)
 {
     int choice = 0;
     double withdrawamount = 0;
-    cout << "Choose a withdraw amount:" << endl;
-    cout << "1. 10TND" << endl;
-    cout << "2. 20TND" << endl;
-    cout << "3. 50TND" << endl;
+    
+    cout << "\n===== WITHDRAW MONEY =====" << endl;
+    cout << "Current Balance: " << client.balance << " TND" << endl;
+    cout << "\nChoose withdraw amount:" << endl;
+    cout << "1. 10 TND" << endl;
+    cout << "2. 20 TND" << endl;
+    cout << "3. 50 TND" << endl;
     cout << "4. Another amount" << endl;
-    cin >> choice;
+    
+    choice = getValidInteger("Choice: ", 1, 4);
     
     switch (choice)
     {
@@ -70,17 +75,18 @@ int Withdraw(Customer &client)
             withdrawamount = 50;
             break;
         case 4:
-            cout << "Enter amount: ";
-            cin >> withdrawamount;
+            withdrawamount = getValidDouble("Enter amount to withdraw (TND): ", 10.0);
             break;
-        default:
-            cout << "Invalid choice!" << endl;
-            return 1;
     }
     
-    if (withdrawamount > client.balance || withdrawamount < 10)
-    {
-        cout << "Sorry, you cannot withdraw that amount. Please try another!" << endl;
+    if (withdrawamount > client.balance) {
+        cout << "✗ Insufficient balance! Your balance is " << client.balance << " TND" << endl;
+        return 1;
+    }
+    
+    // Validate denominations (must be multiple of 10)
+    if ((int)withdrawamount % 10 != 0) {
+        cout << "✗ Amount must be a multiple of 10 TND!" << endl;
         return 1;
     }
     
@@ -92,7 +98,6 @@ int Withdraw(Customer &client)
     tr.amount = withdrawamount;
     time_t now = time(0);
     string dateStr = ctime(&now);
-    // Remove trailing newline from ctime
     if (!dateStr.empty() && dateStr[dateStr.length()-1] == '\n') {
         dateStr.erase(dateStr.length()-1);
     }
@@ -100,7 +105,7 @@ int Withdraw(Customer &client)
     
     pushTransaction(client.transactions, tr);
     client.balance = client.balance - withdrawamount;
-    cout << "Withdrawal successful! New balance: " << client.balance << " TND" << endl;
+    cout << "✓ Withdrawal successful! New balance: " << client.balance << " TND" << endl;
     return 0;
 }
 int Deposit(Customer &client)

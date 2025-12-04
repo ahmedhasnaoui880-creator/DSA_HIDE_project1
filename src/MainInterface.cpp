@@ -15,6 +15,7 @@
 #include "EndTransactionMeth.h"
 #include <ctime>
 #include <cstdlib>
+#include "Input_Validation.h"
 LoanList* globalLoanApplications = createLoanList();
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
@@ -286,9 +287,7 @@ void loginCustomerInterface(Customer customers[], int customerCount)
         cout << "6. Undo Last Transaction" << endl;
         cout << "7. Exit" << endl;
         cout << "Choice: ";
-        cin >> choice;
-        cin.ignore(10000, '\n');  // Moved here - AFTER menu display
-
+        choice = getValidInteger("Choice: ", 1, 7);
         switch (choice)
         {
             case 1:
@@ -297,29 +296,23 @@ void loginCustomerInterface(Customer customers[], int customerCount)
             case 2:
             {
                 Loan loan;
-                cout << "Enter Loan ID: ";
-                cin >> loan.loanID;
-                cin.ignore(10000, '\n');
-                cout << "Enter Loan Type (car/home/student/business): ";
-                cin >> loan.loanType;
-                cin.ignore(10000, '\n');
-                cout << "Enter Principal Amount: ";
-                cin >> loan.principalAmount;
-                cin.ignore(10000, '\n');
-                cout << "Enter Interest Rate: ";
-                cin >> loan.interestRate;
-                cin.ignore(10000, '\n');
-                cout << "Enter Start Date (DD/MM/YYYY): ";
-                cin >> loan.startDate;
-                cin.ignore(10000, '\n');
-                cout << "Enter End Date (DD/MM/YYYY): ";
-                cin >> loan.endDate;
-                cin.ignore(10000, '\n');
+                // Validate Loan ID (must be unique)
+                loan.loanID = getValidLoanID(globalLoanApplications, customers, customerCount);
+                // Validate Loan Type
+                loan.loanType = getValidLoanType();
+                // Validate Principal Amount
+                loan.principalAmount = getValidDouble("Enter Principal Amount (TND): ", 100.0);
+                // Validate Interest Rate
+                loan.interestRate = getValidInterestRate();
+                // Validate Start Date
+                loan.startDate = getValidDate("Enter Start Date (DD/MM/YYYY): ");
+                // Validate End Date
+                loan.endDate = getValidDate("Enter End Date (DD/MM/YYYY): ");
                 loan.account_number = client.account_number;
                 loan.amountPaid = 0.0;
                 loan.remainingBalance = loan.principalAmount;
                 loan.status = "pending";
-                SubmitLoanApplication(loan, globalLoanApplications);  // Use global
+                SubmitLoanApplication(loan, globalLoanApplications);
             }
             break;
             case 3:
@@ -382,35 +375,20 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout <<"6. Earliest Hire Date" << endl;
                 cout <<"7. Display Statistics" << endl;
                 cout <<"8. Exit" << endl;
-                cin >> choice;
-                cin.ignore(10000, '\n');
+                choice = getValidInteger("Choice: ", 1, 8);
                 switch (choice)
                 {
                     case 1:
                     {
                         Employee newEmp;
-                        cout <<"Enter Employee ID: ";
-                        cin >> newEmp.employeeID;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Name: ";
-                        cin >> newEmp.name;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Last Name: ";
-                        cin >> newEmp.lastName;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Address: ";
-                        cin >> newEmp.adress;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Salary: ";
-                        cin >> newEmp.salary;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Hire Date: ";
-                        cin >> newEmp.hireDate;
-                        cin.ignore(10000, '\n');
-                        cout <<"Enter Bank Branch: ";
-                        cin >> newEmp.BankBranch;
-                        cin.ignore(10000, '\n');
-                        addEmployee(newEmp,employees,empcount);
+                        newEmp.employeeID = getValidEmployeeID(employees, empcount, true);
+                        newEmp.name = getValidString("Enter Name: ");
+                        newEmp.lastName = getValidString("Enter Last Name: ");
+                        newEmp.adress = getValidString("Enter Address: ");
+                        newEmp.salary = getValidDouble("Enter Salary (TND): ", 0.01);
+                        newEmp.hireDate = getValidDate("Enter Hire Date (DD/MM/YYYY): ");
+                        newEmp.BankBranch = getValidBankBranch();
+                        addEmployee(newEmp, employees, empcount);
                     }
                     break;
                     case 2:
@@ -491,18 +469,35 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout<<"9. Manage Transactions"<<endl;
                 cout<<"10. Display Statistics"<<endl;
                 cout<<"11. Exit"<<endl;
-                cin >> choice;
-                cin.ignore(10000, '\n');
+                choice = getValidInteger("Choice: ", 1, 11);
                 int loanID;
                 string CustomerID;
                 string newStatus;
-                Customer newCust;
                 Customer ClosedAccounts[100];
                 int closedaccnum;
                 switch (choice)
                 {
                     case 1:
-                    addCustomer(newCust, customers, customerCount);
+                    {
+                        Customer newCust;
+                        // Validate Account Number (must be unique and numeric)
+                        newCust.account_number = getValidAccountNumber(customers, customerCount, true);
+                        // Validate Account Type
+                        newCust.account_type = getValidString("Enter Account Type (e.g., Savings, Checking): ");
+                        // Validate IBAN
+                        newCust.IBAN = getValidIBAN();
+                        // Validate Branch Code
+                        newCust.branch_code = getValidString("Enter Branch Code: ");
+                        // Validate Account Holder Name
+                        newCust.account_holder_name = getValidString("Enter Account Holder Name: ");
+                        // Validate Opening Date
+                        newCust.opening_date = getValidDate("Enter Opening Date (DD/MM/YYYY): ");
+                        // Validate Status
+                        newCust.status = getValidStatus();
+                        // Validate Initial Balance
+                        newCust.balance = getValidDouble("Enter Initial Balance (TND): ", 0.0);
+                        addCustomer(newCust, customers, customerCount);
+                    }
                     break;
                     case 2:
                     displayCustomers(customers,customerCount);
@@ -520,7 +515,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     }
                     break;
                     case 4:{
-                        DeleteClosedAccounts(customers,customerCount,ClosedAccounts,closedaccnum);
+                    DeleteClosedAccounts(customers,customerCount,ClosedAccounts,closedaccnum);
                     }
                     break;
                     case 5:
@@ -640,8 +635,7 @@ void mainInterface(){
     cout <<"2. Employee" << endl;
     cout <<"3. Exit" << endl;
     cout <<"--------------------------------------------------------" << endl;
-    cin >> choice;
-    cin.ignore(10000, '\n');
+    choice = getValidInteger("Choice: ", 1, 3);
     switch (choice)
     {
     case 1:
