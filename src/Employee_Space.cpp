@@ -192,26 +192,6 @@ int displayloansbycustomer(Customer customers[], int custmcount)
     }
     return 0;
 }
-
-int changeLoanStatus(LoanList* loans, int loanID, string newStatus)
-{
-    if (!loans) {
-        cout << "✗ Invalid loan list!" << endl;
-        return 1;
-    }
-    
-    LoanNode* cur = loans->head;
-    while (cur) {
-        if (cur->data.loanID == loanID) {
-            cur->data.status=newStatus;
-            return 0;
-        }
-        cur = cur->next;
-    }
-    cout << "✗ Loan ID " << loanID << " not found!" << endl;
-    return 1;
-}
-
 int earliestHireDate(Employee employees[], int empcount)
 {
     if (empcount == 0) {
@@ -361,17 +341,25 @@ int displayloan(const Customer &c)
     return 0;
 }
 
-int changeLoanStatus(Loan &l, string s)
+int changeLoanStatus(LoanList* l,int id, string s)
 {
-    l.status = s;
-    if (l.status == "closed")
+    LoanNode* n=l->head;
+    while (n && n->data.loanID!=id){
+        n=n->next;
+    }
+    if (!n){
+        cout << "Loan doesn't exsist!";
+        return -1;
+    }
+    n->data.status=s;
+    if (n->data.status == "completed")
     {
-        l.remainingBalance = 0;
-        cout << "✓ Loan status changed to 'closed' and remaining balance set to 0." << endl;
+        n->data.remainingBalance = 0;
+        cout << "✓ Loan status changed to 'completed' and remaining balance set to 0." << endl;
     }
     else
     {
-        cout << "✓ Loan status updated to '" << l.status << "'." << endl;
+        cout << "✓ Loan status updated to '" << s << "'." << endl;
     }
     return 0;
 }

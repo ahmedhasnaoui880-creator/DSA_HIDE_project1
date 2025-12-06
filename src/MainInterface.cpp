@@ -29,20 +29,13 @@ void displayHeader(string title) {
     cout << "  " << title << endl;
     cout << "========================================\n" << endl;
 }
-void clearScreen() {
-    #ifdef _WIN32
-        system("cls");
-    #else
-        system("clear");
-    #endif
-}
-
 void pauseScreen() {
     cout << "\n----------------------------------------" << endl;
     cout << "Press Enter to continue..." << endl;
     cout << "----------------------------------------" << endl;
-    cin.get();
-    clearScreen();
+    
+    string dummy;
+    getline(cin, dummy);
 }
 Customer Split_line_to_customer(string line){
     Customer cust;
@@ -332,9 +325,7 @@ void loginCustomerInterface(Customer customers[], int customerCount)
 {
     string account_number;
     cout << "Please enter your account number: ";
-    cin >> account_number;
-    cin.ignore(10000, '\n');
-    
+    getline(cin, account_number);
     int index = 0;
     while (index < customerCount && customers[index].account_number != account_number) {
         index++;
@@ -347,7 +338,6 @@ void loginCustomerInterface(Customer customers[], int customerCount)
     }
     
     Customer& client = customers[index];
-    clearScreen();
     cout << "Welcome " << client.account_holder_name << endl;
     int choice=0;
     do {
@@ -369,12 +359,10 @@ void loginCustomerInterface(Customer customers[], int customerCount)
         switch (choice)
         {
             case 1:
-                clearScreen();
                 ViewLoans(client);
                 break;
             case 2:
             {
-                clearScreen();
                 displayHeader("LOAN APPLICATION");
                 Loan loan;
                 // Validate Loan ID (must be unique)
@@ -397,27 +385,22 @@ void loginCustomerInterface(Customer customers[], int customerCount)
             }
             break;
             case 3:
-                clearScreen();
                 Withdraw(client);
                 break;
             case 4:
-                clearScreen();
                 Deposit(client);
                 break;
             case 5:
-                clearScreen();
                 displayHeader("TRANSACTION HISTORY");
                 ViewTransactionHistory(*client.transactions);
                 break;
             case 6:
-                clearScreen();
                 displayHeader("UNDO LAST TRANSACTION");
                 UndoLastTransaction(client);
                 break;
             case 7:
                 cout << "Exiting customer interface." << endl;
                 BackupData(customers, customerCount, nullptr, 0);
-                clearScreen();
                 mainInterface();
                 break;
             default:
@@ -449,7 +432,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
     }
     else{
         Employee& emp=employees[index];
-        clearScreen();
         cout <<"Welcome " << emp.name << " " << emp.lastName << endl;
         if (emp.BankBranch==1){
             displayHeader("Head Office Manager:");
@@ -473,7 +455,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 {
                     case 1:
                     {
-                        clearScreen();
                         displayHeader("ADD EMPLOYEE");
                         Employee newEmp;
                         newEmp.employeeID = getValidEmployeeID(employees, empcount, true);
@@ -488,7 +469,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     break;
                     case 2:
                     {
-                        clearScreen();
                         displayHeader("Remove EMPLOYEE");
                         int empID;
                         cout <<"Enter Employee ID to remove: ";
@@ -499,7 +479,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     break;
                     case 3:
                     {
-                        clearScreen();
                         displayHeader("Update EMPLOYEE");
                         int empID;
                         cout << "Enter Employee ID to update: ";
@@ -544,30 +523,24 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
 }
                     break;
                     case 4:
-                    clearScreen();
                     displayEmployeeAlpha(employees,empcount);
                     break;
                     case 5:
-                    clearScreen();
                     displayEmployeeByBB(employees,empcount);
                     break;
                     case 6:
-                    clearScreen();
                     earliestHireDate(employees,empcount);
                     break;
                     case 7:
-                    clearScreen();
                     latestHireDate(employees,empcount);
                     break;
                     case 8:
-                    clearScreen();
                     displayHeader("Displaying statistics");
                     displayStatistics(employees,empcount,customers,customerCount);
                     break;
                     case 9:
                     cout <<"Exiting employee interface." << endl;
                     BackupData(customers,customerCount,employees,empcount);
-                    clearScreen();
                     mainInterface();
                     break;
                     default:
@@ -577,7 +550,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
             }while (choice!=8);
         }
         else{
-            clearScreen();
             cout <<"Employee: " << emp.name << " " << emp.lastName << endl;
             int choice=0;
             do{
@@ -606,7 +578,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 {
                     case 1:
                     {
-                        clearScreen();
                         displayHeader("ADD CUSTOMER ACCOUNT");
                         Customer newCust;
                         // Validate Account Number (must be unique and numeric)
@@ -629,11 +600,9 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     }
                     break;
                     case 2:
-                    clearScreen();
                     displayCustomers(customers,customerCount);
                     break;
                     case 3:{
-                        clearScreen();
                         displayHeader("CHANGE ACCOUNT STATUS");
                         // Get account number
                         string custId = getValidString("Enter Customer Account Number: ");
@@ -673,18 +642,15 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     }
                     break;
                     case 4:{
-                    clearScreen();
                     displayHeader("DELETE CLOSED ACCOUNTS");
                     DeleteClosedAccounts(customers,customerCount,ClosedAccounts,closedaccnum);
                     }
                     break;
                     case 5:
-                    clearScreen();
                     displayloansbycustomer(customers,customerCount);
                     break;
                     case 6:
                     {
-                        clearScreen();
                         displayHeader("CHANGE LOAN STATUS");
                         // Get and validate customer account
                         string CustomerID = getValidString("Enter Customer Account Number: ");
@@ -728,14 +694,13 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                         cout << "3. overdue" << endl;
                         cout << "4. closed" << endl;
                         
-                        int statusChoice = getValidInteger("Choice: ", 1, 4);
+                        int statusChoice = getValidInteger("Choice: ", 1, 3);
                         string newStatus;
                         
                         switch (statusChoice) {
                             case 1: newStatus = "active"; break;
                             case 2: newStatus = "completed"; break;
                             case 3: newStatus = "overdue"; break;
-                            case 4: newStatus = "closed"; break;
                         }
                         
                         changeLoanStatus(customers[custIndex].loans, loanID, newStatus);
@@ -743,7 +708,6 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     break;
                     case 7:
                     {
-                    clearScreen();
                     displayHeader("DELETE COMPLETED LOANS");
                     CompletedLoansList* completed_loans = loadCompletedLoans("../Data/CompletedLoans.txt");
                     deleteloan(completed_loans,customers,customerCount);
@@ -753,28 +717,24 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     // In loginEmployeeInterface, employee space section:
                 case 8:
                     {
-                        clearScreen();
                         displayHeader("MANAGE LOANS");
                         Manageloans(globalLoanApplications, customers, customerCount);  // Use global
                         break;
                     }
                 case 9:
                 {
-                    clearScreen();
                     displayHeader("MANAGE DAILY TRANSACTIONS");
                     EndTransactionList* EndTransactions = ManageTransactions(customers, customerCount);
                     cout << "All transactions have been finalized for the day." << endl;
                     break;
                 }
                 case 10:
-                    clearScreen();
                     displayHeader("Displaying statistics");
                     displayStatistics(employees, empcount, customers, customerCount);
                     break;
                 case 11:
                     cout << "Exiting employee interface." << endl;
                     BackupData(customers, customerCount, employees, empcount);
-                    clearScreen();
                     mainInterface();
                     break;
                 default:{
@@ -884,6 +844,7 @@ void mainInterface(){
             destroyTransactionStack(customers[i].transactions);
         }
         cout << "Exiting the system. Goodbye!" << endl;
+        return;
         break;
     }
     if (choice != 3) {
@@ -894,8 +855,11 @@ void mainInterface(){
 }
 void displayStatistics(Employee employees[], int empcount,Customer customers[], int customerCount){
     cout <<"Statistics Menu:" << endl;
-    int choice;
+    int choice=0;
     do{
+        if (choice!=0){
+            pauseScreen();
+        }
         cout<<"1. Total Number of Loans"<<endl;
         cout<<"2. Number of Loans by Type"<<endl;
         cout<<"3. Number of Loans by Status"<<endl;
@@ -924,7 +888,7 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
             customerWithMostLoans(customers,customerCount);
             break;
             case 6:
-            highestloanamount(customers,customerCount);
+            highestbalance(customers,customerCount);
             break;
             case 7:
             lowestbalance(customers,customerCount);
@@ -987,7 +951,7 @@ CompletedLoansList* loadCompletedLoans(string path){
             completedloan.endDate = linepart;
             completedloan.status = line;
             if (!insertIntoCompletedLoans(list,completedloan,pos)){
-                cout <<"Insertion failed for loan num"<<pos+1<<"please check your data file";
+                cout <<"Insertion failed for loan num "<<pos+1<<" please check your data file";
             }
     }
     return list;
