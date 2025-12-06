@@ -122,6 +122,7 @@ LoanList* loadLoanApplications() {
     if (!file) return apps;  // Return empty list if file doesn't exist
     
     string line;
+    int pos=0;
     while (getline(file, line)) {
             // Parse loan data
             Loan loan;
@@ -155,7 +156,8 @@ LoanList* loadLoanApplications() {
             linepart = line.substr(0, line.find(','));
             loan.status = linepart;
         if (loan.status == "pending") {
-            SubmitLoanApplication(loan, apps);
+            insertLoan(apps,loan,pos);
+            pos++;
         }
     }
     file.close();
