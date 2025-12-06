@@ -8,4 +8,5 @@ Transaction popTransaction(TransactionStack* stack);
 void clearTransactionStack(TransactionStack* stack);
 int getTransactionStackSize(const TransactionStack& stack);
 bool compareTransactions(const TransactionStack& t1, const TransactionStack& t2);
+void destroyTransactionStack(TransactionStack* stack);
 #endif

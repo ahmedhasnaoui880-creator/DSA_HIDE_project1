@@ -45,7 +45,7 @@ int listSize(const CompletedLoansList& L){
     return L.size;
 }
 
-int insertIntoConpletedLoans(CompletedLoansList* L, Loan loan, int pos){
+int insertIntoCompletedLoans(CompletedLoansList* L, Loan loan, int pos){
     if (pos < 0 || pos > L->size) {
         return -1; // Invalid position
     }

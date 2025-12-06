@@ -1,5 +1,6 @@
 #include "StatisticsMeth.h"
 #include <iostream>
+#include "Input_Validation.h"
 using namespace std;
 
 void totalnumofloans(const Customer arr[], int size) {
@@ -172,4 +173,63 @@ void NumberofEmployeesbyBB(const Employee arr[], int size, int branches) {
     }
     
     delete[] employeesbyBB;
+}
+bool isDateInRange(string date, string start, string end) {
+    // Convert DD/MM/YYYY to YYYYMMDD for proper comparison
+    string d = date.substr(6,4) + date.substr(3,2) + date.substr(0,2);
+    string s = start.substr(6,4) + start.substr(3,2) + start.substr(0,2);
+    string e = end.substr(6,4) + end.substr(3,2) + end.substr(0,2);
+    return (d >= s && d <= e);
+}
+void activeLoansInDateRange(const Customer arr[], int size) {
+    string startDate = getValidDate("Enter start date (DD/MM/YYYY): ");
+    string endDate = getValidDate("Enter end date (DD/MM/YYYY): ");
+    
+    int count = 0;
+    cout << "\n===== ACTIVE LOANS IN DATE RANGE =====" << endl;
+    cout << "Range: " << startDate << " to " << endDate << endl;
+    
+    for (int i = 0; i < size; i++) {
+        if (arr[i].loans && !isEmpty(*arr[i].loans)) {
+            LoanNode* n = arr[i].loans->head;
+            while (n) {
+                if (isDateInRange(n->data.startDate,startDate,endDate) && isDateInRange(n->data.endDate,startDate,endDate)) {
+                    cout << "\nLoan ID: " << n->data.loanID << endl;
+                    cout << "Customer: " << arr[i].account_holder_name << endl;
+                    cout << "Type: " << n->data.loanType << endl;
+                    cout << "Amount: " << n->data.principalAmount << " TND" << endl;
+                    cout << "Start Date: " << n->data.startDate << endl;
+                    count++;
+                }
+                n = n->next;
+            }
+        }
+    }
+    cout << "\nTotal active loans in range: " << count << endl;
+}
+void customerWithMostLoans(const Customer arr[], int size) {
+    if (size == 0) {
+        cout << "There are no customers" << endl;
+        return;
+    }
+    
+    int maxLoans = 0;
+    int customerIndex = -1;
+    
+    for (int i = 0; i < size; i++) {
+        int loanCount = (arr[i].loans) ? arr[i].loans->size : 0;
+        if (loanCount > maxLoans) {
+            maxLoans = loanCount;
+            customerIndex = i;
+        }
+    }
+    
+    if (customerIndex != -1 && maxLoans > 0) {
+        cout << "Customer with most loans:" << endl;
+        cout << "  Name: " << arr[customerIndex].account_holder_name << endl;
+        cout << "  Account: " << arr[customerIndex].account_number << endl;
+        cout << "  Number of loans: " << maxLoans << endl;
+    } else {
+        cout << "No loans found in the system" << endl;
+    }
 }

@@ -13,4 +13,6 @@ void highestbalance(const Customer arr[],int size);
 void lowestbalance(const Customer arr[],int size);
 void NumberofEmployees(const Employee employeeArr[],int size);
 void NumberofEmployeesbyBB(const Employee arr[],int size,int branches);
+void activeLoansInDateRange(const Customer arr[], int size);
+void customerWithMostLoans(const Customer arr[], int size);
 #endif // STATISTICSMETH_H

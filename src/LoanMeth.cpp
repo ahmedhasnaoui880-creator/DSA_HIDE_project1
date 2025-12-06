@@ -115,3 +115,8 @@ void clearLoanList(LoanList* list) {
     list->tail = nullptr;
     list->size = 0;
 }
+void destroyLoanList(LoanList* list) {
+    if (!list) return;
+    clearLoanList(list);  // Clears all nodes
+    delete list;          // Delete the list itself
+}

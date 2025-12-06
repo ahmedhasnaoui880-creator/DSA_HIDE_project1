@@ -69,3 +69,8 @@ bool compareTransactions(const TransactionStack& t1, const TransactionStack& t2)
     }
     return true;
 }
+void destroyTransactionStack(TransactionStack* stack) {
+    if (!stack) return;
+    clearTransactionStack(stack);  // Clears all nodes
+    delete stack;                   // Delete the stack itself
+}

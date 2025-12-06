@@ -389,7 +389,7 @@ int deleteloan(CompletedLoansList* completed_loans, Customer customers[], int cu
         {
             if (current->data.status == "completed")
             {
-                insertIntoConpletedLoans(completed_loans, current->data, pos);
+                insertIntoCompletedLoans(completed_loans, current->data, pos);
                 pos++;
                 deletedCount++;
                 int loanID = current->data.loanID;

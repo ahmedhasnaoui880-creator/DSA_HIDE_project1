@@ -16,7 +16,7 @@
 #include <ctime>
 #include <cstdlib>
 #include "Input_Validation.h"
-LoanList* globalLoanApplications = createLoanList();
+LoanList* globalLoanApplications=createLoanList();
 using namespace std;
 void displayStatistics(Employee employees[], int empcount,Customer* customers,int customerCount);
 void bakcupcompletedloans(CompletedLoansList* clist);
@@ -116,6 +116,52 @@ LoanList* getCustomerLoans(string account_number){
     file.close();
     return loans;
 }
+LoanList* loadLoanApplications() {
+    ifstream file("../Data/LoanApplications.txt");
+    LoanList* apps = createLoanList();
+    if (!file) return apps;  // Return empty list if file doesn't exist
+    
+    string line;
+    while (getline(file, line)) {
+            // Parse loan data
+            Loan loan;
+            string linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.account_number = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.loanID = stoi(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.loanType = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.principalAmount = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.interestRate = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.amountPaid = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.remainingBalance = stod(linepart);
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.startDate = linepart;
+            linepart = line.substr(0, line.find(','));
+            line.erase(0, line.find(',') + 1);
+            loan.endDate = linepart;
+            linepart = line.substr(0, line.find(','));
+            loan.status = linepart;
+        if (loan.status == "pending") {
+            SubmitLoanApplication(loan, apps);
+        }
+    }
+    file.close();
+    return apps;
+}
+
 TransactionStack* getCustomerTransactions(string account_number){
     ifstream file("../Data/Transactions.txt");
     if (!file) {
@@ -170,8 +216,6 @@ TransactionStack* getCustomerTransactions(string account_number){
     return trStack;
 }
 void BackupData(const Customer customers[],int customerCount,const Employee employees[],int empcount){
-    // DON'T open files yet - first check if we have data
-    
     if (customerCount <= 0) {
         cout << "Warning: No customers to backup." << endl;
         return;
@@ -229,6 +273,23 @@ void BackupData(const Customer customers[],int customerCount,const Employee empl
             }
         }
     }
+    // Backup Loan Applications
+    ofstream appfile("../Data/LoanApplications.txt");
+    LoanNode* appNode = globalLoanApplications->head;
+    while (appNode) {
+    appfile <<appNode->data.account_number << ","
+            <<appNode->data.loanID << "," 
+            <<appNode->data.loanType <<","
+            <<appNode->data.principalAmount <<","
+            <<appNode->data.interestRate <<","
+            <<appNode->data.amountPaid <<","
+            <<appNode->data.remainingBalance <<","
+            <<appNode->data.startDate <<","
+            <<appNode->data.endDate <<","
+            <<appNode->data.status <<","
+            << endl;
+            appNode = appNode->next;
+}
     
     custfile.close();
     loanfile.close();
@@ -366,6 +427,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
             cout <<"Head Office Manager:" << endl;
             int choice;
             do{
+                pauseScreen();
                 cout <<"Please select an option: " << endl;
                 cout <<"1. Add Employee" << endl;
                 cout <<"2. Remove Employee" << endl;
@@ -373,9 +435,10 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                 cout <<"4. Display Employees Alphabetically" << endl;
                 cout <<"5. Display Employees by Bank Branch" << endl;
                 cout <<"6. Earliest Hire Date" << endl;
-                cout <<"7. Display Statistics" << endl;
-                cout <<"8. Exit" << endl;
-                choice = getValidInteger("Choice: ", 1, 8);
+                cout <<"7. Latest Hire Date" << endl;
+                cout <<"8. Display Statistics" << endl;
+                cout <<"9. Exit" << endl;
+                choice = getValidInteger("Choice: ", 1, 9);
                 switch (choice)
                 {
                     case 1:
@@ -454,10 +517,13 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
                     earliestHireDate(employees,empcount);
                     break;
                     case 7:
+                    latestHireDate(employees,empcount);
+                    break;
+                    case 8:
                     cout <<"Displaying statistics." << endl;
                     displayStatistics(employees,empcount,customers,customerCount);
                     break;
-                    case 8:
+                    case 9:
                     cout <<"Exiting employee interface." << endl;
                     BackupData(customers,customerCount,employees,empcount);
                     mainInterface();
@@ -472,6 +538,7 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
             cout <<"Employee Space:" << endl;
             int choice;
             do{
+                pauseScreen();
                 displayHeader("Employee Menu");
                 cout<<"1. Add Customer Account"<<endl;
                 cout <<"2. Display List of Accounts"<<endl;
@@ -658,6 +725,8 @@ void loginEmployeeInterface(Employee employees[],int empcount,Customer customers
     }
 }
 }
+
+// In mainInterface(), before the menu:
 bool validateCustomerData(const Customer& cust) {
     if (cust.account_number.empty()) return false;
     if (cust.account_holder_name.empty()) return false;
@@ -666,6 +735,7 @@ bool validateCustomerData(const Customer& cust) {
     return true;
 }
 void mainInterface(){
+    LoanList* globalLoanApplications = loadLoanApplications();
     ifstream file("../Data/Customers.txt");
     if (!file) {
         cout << "✗ ERROR: Could not open ../Data/Customers.txt" << endl;
@@ -751,6 +821,10 @@ void mainInterface(){
         break;
     case 3:
         BackupData(customers,customerCount,employees,empcount);
+        for (int i = 0; i < customerCount; i++) {
+            destroyLoanList(customers[i].loans);
+            destroyTransactionStack(customers[i].transactions);
+        }
         cout << "Exiting the system. Goodbye!" << endl;
         break;
     }
@@ -764,17 +838,17 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
     cout <<"Statistics Menu:" << endl;
     int choice;
     do{
-
         cout<<"1. Total Number of Loans"<<endl;
         cout<<"2. Number of Loans by Type"<<endl;
         cout<<"3. Number of Loans by Status"<<endl;
-        cout<<"4. Highest Loan Amount"<<endl;
-        cout<<"5. Highest Balance"<<endl;
-        cout<<"6. Lowest Balance"<<endl;
-        cout<<"7. Number of Employees"<<endl;
-        cout<<"8. Number of Employees by Bank Branch"<<endl;
-        cout<<"9. Exit Statistics Menu"<<endl;
-        choice = getValidInteger("Choice: ", 1, 9);
+        cout<< "4. Active Loans in Date Range" << endl;
+        cout<< "5. Customer with Highest Number of Loans" << endl;
+        cout<< "6. Highest Balance" << endl;
+        cout<<"7. Lowest Balance"<<endl;
+        cout<<"8. Number of Employees"<<endl;
+        cout<<"9. Number of Employees by Bank Branch"<<endl;
+        cout<<"10. Exit Statistics Menu"<<endl;
+        choice = getValidInteger("Choice: ", 1, 10);
         switch (choice){
             case 1:
             totalnumofloans(customers,customerCount);
@@ -786,18 +860,21 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
             numofloansbystatus(customers,customerCount);
             break;
             case 4:
-            highestloanamount(customers,customerCount);
+            activeLoansInDateRange(customers,customerCount);
             break;
             case 5:
-            highestbalance(customers,customerCount);
+            customerWithMostLoans(customers,customerCount);
             break;
             case 6:
-            lowestbalance(customers,customerCount);
+            highestloanamount(customers,customerCount);
             break;
             case 7:
-            NumberofEmployees(employees,empcount);
+            lowestbalance(customers,customerCount);
             break;
             case 8:
+            NumberofEmployees(employees,empcount);
+            break;
+            case 9:
             {
                 int branches;
                 cout <<"Enter number of bank branches: ";
@@ -806,11 +883,11 @@ void displayStatistics(Employee employees[], int empcount,Customer customers[], 
                 NumberofEmployeesbyBB(employees,empcount,branches);
             }
             break;
-            case 9:
+            case 10:
             cout << "Exiting Statistics Menu." << endl;
             break;
         }
-    }while (choice!=9);
+    }while (choice!=10);
     return;
 }
 
@@ -851,7 +928,7 @@ CompletedLoansList* loadCompletedLoans(string path){
             line.erase(0, line.find(',') + 1);
             completedloan.endDate = linepart;
             completedloan.status = line;
-            if (!insertIntoConpletedLoans(list,completedloan,pos)){
+            if (!insertIntoCompletedLoans(list,completedloan,pos)){
                 cout <<"Insertion failed for loan num"<<pos+1<<"please check your data file";
             }
     }
@@ -861,7 +938,7 @@ CompletedLoansList* loadCompletedLoans(string path){
 void bakcupcompletedloans(CompletedLoansList* list){
     CompletedLoansListNode* current=list->head;
     if (list->size>0){
-        ofstream clfile ("CompletedLoans.txt");
+        ofstream clfile ("../Data/CompletedLoans.txt");
         while (current!=nullptr){
             clfile << current->data.account_number << "," << current->data.loanID << "," << current->data.loanType << "," << current->data.principalAmount << "," << current->data.interestRate << "," << current->data.amountPaid << "," << current->data.remainingBalance << "," << current->data.startDate << "," << current->data.endDate << "," << current->data.status << endl;
             current = current->next;

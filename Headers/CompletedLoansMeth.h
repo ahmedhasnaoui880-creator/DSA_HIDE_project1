@@ -14,7 +14,7 @@ bool isEmpty(const CompletedLoansList& L);
 bool isFull(const CompletedLoansList& L);
 int listSize(const CompletedLoansList& L);
 
-int insertIntoConpletedLoans(CompletedLoansList* L, Loan loan, int pos);
+int insertIntoCompletedLoans(CompletedLoansList* L, Loan loan, int pos);
 int removeAt(CompletedLoansList* L, int pos);
 int getElement(const CompletedLoansList& L, int pos);
 

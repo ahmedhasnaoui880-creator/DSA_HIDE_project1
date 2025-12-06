@@ -9,6 +9,8 @@
                 "-g",
                 "-I",
                 "${workspaceFolder}\\Headers",
+                "-I",
+                "${workspaceFolder}\\Helpers",
                 "${workspaceFolder}\\src\\MainInterface.cpp",
                 "${workspaceFolder}\\src\\Customer_Interface.cpp",
                 "${workspaceFolder}\\src\\Employee_Space.cpp",
@@ -17,6 +19,7 @@
                 "${workspaceFolder}\\src\\TransactionMeth.cpp",
                 "${workspaceFolder}\\src\\CompletedLoansMeth.cpp",
                 "${workspaceFolder}\\src\\EndTransactionMeth.cpp",
+                "${workspaceFolder}\\Helpers\\Input_Validation.cpp",
                 "-o",
                 "${workspaceFolder}\\src\\main.exe"
             ],

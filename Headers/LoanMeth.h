@@ -11,5 +11,5 @@ int removeLoan(LoanList* list, int loanID);
 Loan* findLoan(const LoanList& list,int loanID);
 void displayAllLoans(const LoanList& list);
 void clearLoanList(LoanList* list);
-
+void destroyLoanList(LoanList* list);
 #endif
