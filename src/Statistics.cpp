@@ -143,36 +143,58 @@ void NumberofEmployees(const Employee employeeArr[], int size) {
     cout << "Total number of employees: " << size << endl;
 }
 
-void NumberofEmployeesbyBB(const Employee arr[], int size, int branches) {
-    if (branches <= 0) {
-        cout << "Invalid number of branches" << endl;
-        return;
-    }
-    
+void NumberofEmployeesbyBB(const Employee arr[], int size) {
     if (size == 0) {
         cout << "There are no employees" << endl;
         return;
     }
     
-    // Use simple array instead of vector
-    int* employeesbyBB = new int[branches];
-    for (int i = 0; i < branches; i++) {
-        employeesbyBB[i] = 0;
-    }
+    // Auto-detect unique bank branches
+    int uniqueBranches[100];
+    int branchCount = 0;
     
+    // Find all unique branches
     for (int i = 0; i < size; i++) {
-        int branch = arr[i].BankBranch;
-        if (branch >= 1 && branch <= branches) {
-            employeesbyBB[branch - 1]++;
+        bool found = false;
+        for (int j = 0; j < branchCount; j++) {
+            if (uniqueBranches[j] == arr[i].BankBranch) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            uniqueBranches[branchCount] = arr[i].BankBranch;
+            branchCount++;
         }
     }
     
-    cout << "Number of employees by branch:" << endl;
-    for (int i = 0; i < branches; i++) {
-        cout << "  Branch " << (i + 1) << ": " << employeesbyBB[i] << " employees" << endl;
+    // Sort branches
+    for (int i = 0; i < branchCount - 1; i++) {
+        for (int j = i + 1; j < branchCount; j++) {
+            if (uniqueBranches[i] > uniqueBranches[j]) {
+                int temp = uniqueBranches[i];
+                uniqueBranches[i] = uniqueBranches[j];
+                uniqueBranches[j] = temp;
+            }
+        }
     }
     
-    delete[] employeesbyBB;
+    // Display counts
+    cout << "\n===== EMPLOYEES BY BANK BRANCH =====" << endl;
+    for (int i = 0; i < branchCount; i++) {
+        int count = 0;
+        for (int j = 0; j < size; j++) {
+            if (arr[j].BankBranch == uniqueBranches[i]) {
+                count++;
+            }
+        }
+        
+        if (uniqueBranches[i] == 1) {
+            cout << "  Head Office (1): " << count << " employee(s)" << endl;
+        } else {
+            cout << "  Branch " << uniqueBranches[i] << ": " << count << " employee(s)" << endl;
+        }
+    }
 }
 bool isDateInRange(string date, string start, string end) {
     // Convert DD/MM/YYYY to YYYYMMDD for proper comparison

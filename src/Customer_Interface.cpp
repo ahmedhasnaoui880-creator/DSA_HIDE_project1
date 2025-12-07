@@ -44,7 +44,7 @@ int SubmitLoanApplication(Loan loan, LoanList *loansapplications)
         appliedloan->prev = loansapplications->tail;
         loansapplications->tail = appliedloan;
     }
-    loansapplications->size++;  // ADD THIS LINE
+    loansapplications->size++;
     cout << "Loan application submitted successfully!" << endl;
     return 0;
 }

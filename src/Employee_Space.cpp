@@ -10,7 +10,6 @@ using namespace std;
 // Forward declarations for functions implemented later in this file
 int displayloan(const Customer &c);
 int changeLoanStatus(Loan &l, string s);
-
 // Implementations required by the header (wrappers / simple helpers)
 void SortByAlpha(Employee employees[], int empcount);
 void SortByBB(Employee employees[], int empcount);
@@ -152,8 +151,6 @@ void SortByBB(Employee employees[], int empcount)
         }
     }
 }
-
-// Wrapper functions to match signatures declared in the header file
 int findcustomerbyID(Customer customers[], int custcount, string custID){
     for (int i = 0; i < custcount; i++){
         if (customers[i].account_number == custID){
@@ -192,6 +189,11 @@ int displayloansbycustomer(Customer customers[], int custmcount)
     }
     return 0;
 }
+bool CompareDates(string date1,string date2){
+    string d1 = date1.substr(6,4) + date1.substr(3,2) + date1.substr(0,2);
+    string d2 = date2.substr(6,4) + date2.substr(3,2) + date2.substr(0,2);
+    return d1>d2;
+}
 int earliestHireDate(Employee employees[], int empcount)
 {
     if (empcount == 0) {
@@ -203,7 +205,7 @@ int earliestHireDate(Employee employees[], int empcount)
     int earliestIndex = 0;
     
     for (int i = 1; i < empcount; i++) {
-        if (employees[i].hireDate < earliest) {
+        if (CompareDates(earliest,employees[i].hireDate)) {
             earliest = employees[i].hireDate;
             earliestIndex = i;
         }
@@ -228,7 +230,7 @@ int latestHireDate(Employee employees[], int empcount)
     
     for (int i = 1; i < empcount; i++)
     {
-        if (employees[i].hireDate > latest)
+        if (CompareDates(employees[i].hireDate,latest))
         {
             latest = employees[i].hireDate;
             latestIndex = i;
@@ -283,23 +285,29 @@ int displayCustomers(Customer customers[], int empcount)
     return 0;
 }
 
-int DeleteClosedAccounts(Customer customers[], int &empcount, Customer archived[], int &archcount)
+int DeleteClosedAccounts(Customer customers[], int &custcount, Customer archived[], int &archcount)
 {
     int deletedCount = 0;
     int i = 0;
     
-    while (i < empcount)
+    while (i < custcount)
     {
         if (customers[i].status == "closed")
         {
+            if (archcount >= 100) {
+                cout << "✗ Archive is full! Cannot delete more accounts." << endl;
+                break;
+            }
+            
             archived[archcount] = customers[i];
             archcount++;
             deletedCount++;
-            for (int j = i; j < empcount - 1; j++)
+            
+            for (int j = i; j < custcount - 1; j++)
             {
                 customers[j] = customers[j + 1];
             }
-            empcount--;
+            custcount--;
         }
         else
         {
@@ -308,13 +316,12 @@ int DeleteClosedAccounts(Customer customers[], int &empcount, Customer archived[
     }
     
     if (deletedCount > 0) {
-        cout << "✓ Deleted " << deletedCount << " closed account(s) and moved to archive." << endl;
+        cout << "✓ Deleted " << deletedCount << " closed account(s)." << endl;
     } else {
         cout << "✓ No closed accounts found." << endl;
     }
     return 0;
 }
-
 int displayloan(const Customer &c)
 {
     if (!c.loans || c.loans->size == 0)
@@ -371,15 +378,16 @@ int deleteloan(CompletedLoansList* completed_loans, Customer customers[], int cu
     for (int i = 0; i < custcount; i++) {
         LoanList* custloan = customers[i].loans;
         LoanNode *current = custloan->head;
-        int pos = completed_loans->size;
         
         while (current != nullptr)
         {
             if (current->data.status == "completed")
             {
-                insertIntoCompletedLoans(completed_loans, current->data, pos);
-                pos++;
-                deletedCount++;
+                int result = insertIntoCompletedLoans(completed_loans, current->data, completed_loans->size);
+                if (result == 0) {  // 0 = success
+                    deletedCount++;
+                }
+                
                 int loanID = current->data.loanID;
                 current = current->next;
                 removeLoan(customers[i].loans, loanID);
@@ -488,7 +496,7 @@ EndTransactionList* ManageTransactions(Customer customers[], int custcount)
     for (int i = 0; i < custcount; i++) {
         int custTransCount = 0;
         
-        // COPY transactions instead of removing them
+        // COPY transactions
         TransactionStackNode* current = customers[i].transactions->top;
         while (current != nullptr) {
             addEndTransaction(EndTransactions, current->data);
